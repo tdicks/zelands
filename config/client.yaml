@@ -1,0 +1,9 @@
+window:
+  width: 800
+  height: 600
+  title: "ZELANDS"
+controls:
+  up: "K_w"
+  down: "K_s"
+  left: "K_a"
+  right: "K_d"
