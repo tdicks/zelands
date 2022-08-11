@@ -1,37 +1,26 @@
-import json
-import jsonpickle
+import jsons
 
 class BaseRequest(object):
   def __init__(self):
     self.type = type(self).__name__
-    self.data = {}
-    self.message = ""
 
   def toJson(self):
-    return json.dumps(jsonpickle.encode(self))
-  
+    return jsons.dump(self)
+
   @staticmethod
   def fromJson(jsonstr):
-    return jsonpickle.decode(jsonstr)
-    
-  
+    return jsons.load(jsonstr, type(self))
+
+@dataclass
 class PlayerAuthRequest(BaseRequest):
-  def __init__(self):
-    self.data = {
-      "username": "",
-      "password": ""
-    }
-    
+  username: str
+  password: str
+
+@dataclass
 class RconCommandRequest(BaseRequest):
-  def __init__(self):
-    self.data = {
-      "command": "",
-      "args": []
-    }
+  command: str
+  args: list
 
+@dataclass
 class RconAuthRequest(BaseRequest):
-  self __init__(self):
-    self.data = {
-      "password": ""
-    }
-
+  password: str
