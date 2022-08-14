@@ -1,0 +1,4 @@
+eventlet==0.33.1
+gevent_socketio==0.3.6
+pygame==2.1.2
+PyYAML==6.0
