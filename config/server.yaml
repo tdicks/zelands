@@ -2,3 +2,4 @@ network:
   listen_addr: ''
   listen_port: 19820
 rcon_password: 'pass123'
+max_clients: 2

@@ -22,13 +22,17 @@ class GameServerProtocol(LineReceiver):
         LineReceiver.sendLine(self, data.encode('utf-8'))
 
     def connectionMade(self):
+        if len(self.factory.clients) >= self.factory.max_clients:
+            self.transport.loseConnection()
+            return
+
         print("Client %i connected" % (self.sid))
         self.factory.clients[self.sid] = self
 
     def connectionLost(self, reason):
         if (self.sid in self.factory.clients):
+            print("Client %i disconnected" % (self.sid))
             del self.factory.clients[self.sid]
-        print("Client %i disconnected" % (self.sid))
 
     def lineReceived(self, data):
         response = self.event_handler.handle_data(data)
@@ -41,6 +45,7 @@ class GameServerFactory(Factory):
         self.clients = {}
         self.last_sid = 0
         self._max_sid = 9000
+        self.max_clients = config['max_clients']
 
     def buildProtocol(self, addr):
         return GameServerProtocol(self)
