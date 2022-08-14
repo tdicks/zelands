@@ -5,9 +5,9 @@
 
 The below commands will create a requirements.txt that can be used to install all dependencies at once.
 
-    ```pip install pipreqs```
-    ```pipreqs .```
+    pip install pipreqs
+    pipreqs . --force
 
 Run the below command to install all the required dependencies
 
-    ```pip install -r requirements.txt```
+    pip install -r requirements.txt
