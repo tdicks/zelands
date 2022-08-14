@@ -2,9 +2,11 @@
 
 import pygame
 import yaml
+import sys
+import os
 from pygame.locals import *
 from events import EventHandler
-
+from level import Level
 class Game:
     def __init__(self):
         self._running = True
@@ -18,6 +20,8 @@ class Game:
         pygame.display.set_caption(self.config["window"]["title"])
         self.size = self.width, self.height = self.config['window']['width'], self.config['window']['height']
         self._display_surface = pygame.display.set_mode(self.size,HWSURFACE)
+        self.clock = pygame.time.Clock()
+        self.level = Level()
         self._running = True
         self.event_handler = EventHandler(self)
 
@@ -25,9 +29,12 @@ class Game:
         if event.type == pygame.QUIT:
             self._running = False
         self.event_handler.handle(event)
-        
+
     def on_loop(self):
-        pass
+        dt = self.clock.tick() / 1000
+        self.level.run(dt)
+        pygame.display.update()
+       
     
     def on_render(self):
         pass
@@ -52,4 +59,3 @@ if __name__ == "__main__":
     with open('config/client.yaml', 'r') as file:
         game.config = yaml.safe_load(file)
     game.on_execute()
-    
