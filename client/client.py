@@ -3,13 +3,15 @@
 
 import socketio
 
+sock = socketio.Client()
+
 class Client:
   
   socket = None
   
   def __init__(self):
-    self.socket = socketio.Client()
+    self.socket = sock
     
-  @socket.event
+  @sock.event
   def message(data):
     pass
