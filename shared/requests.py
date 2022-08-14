@@ -1,26 +1,20 @@
-import jsons
-
-class BaseRequest(object):
-  def __init__(self):
-    self.type = type(self).__name__
-
-  def toJson(self):
-    return jsons.dump(self)
-
-  @staticmethod
-  def fromJson(jsonstr):
-    return jsons.load(jsonstr, type(self))
+from dataclasses import dataclass
 
 @dataclass
-class PlayerAuthRequest(BaseRequest):
+class PlayerAuthRequest:
   username: str
   password: str
 
 @dataclass
-class RconCommandRequest(BaseRequest):
-  command: str
+class RconCommandRequest:
+  rcon_command: str
   args: list
 
 @dataclass
-class RconAuthRequest(BaseRequest):
-  password: str
+class RconAuthRequest:
+  rcon_password: str
+
+@dataclass
+class Request:
+  request: str
+  data: object

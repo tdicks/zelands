@@ -1,5 +1,6 @@
 class ProfileManager:
-    def __init__(self):
+    def __init__(self, client):
+        self.client = client
         pass
 
     def load_profile(self, uid):

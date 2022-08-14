@@ -1,53 +1,92 @@
 import json
+from typing import Union
 import sys
+import os
+
+sys.path.append(os.getcwd())
+
+from shared.requests import *
 
 class EventHandler:
-    def __init__(self):
+    def __init__(self, client):
+        self.client = client
         pass
 
-    def handle_data(self, client, datastr):
+    def json_response(self, response):
+        if type(response) == str:
+            return json.dumps({"message": response})
+        else:
+            return json.dumps(response)
+
+    def handle_data(self, bytes):
         try:
-            data = json.loads(datastr)
-            payload = data['payload']
+            request = json.loads(bytes)
+            if not request.keys() >= {"type", "data"}:
+                return self.json_response("Missing type and/or data keys")
 
-            if payload == 'player_auth':
-                return self.player_auth(client, payload['username'], payload['password'])
+            reqtype = request['type']
+            data = request['data']
 
-            if payload == 'rcon_cmd':
-                return self.rcon_command(client, data['cmd'])
+            if reqtype == 'player_auth':
+                if data.keys() >= {"username", "password"}:
+                    username = data['username']
+                    password = data['password']
+                    return self.player_auth(username, password)
 
-            if payload == 'rcon_auth':
-                return self.rcon_auth(client, data['password'])
+            if reqtype == 'rcon_auth':
+                password = data['password']
+                return self.rcon_auth(password)
+
+            if reqtype == 'rcon_command':
+                command = data['command']
+                return self.rcon_command(command)
+
+            if reqtype == "player_move":
+                if data.keys() >= {"status", "direction"}:
+                    status = data['status']
+                    direction = data['direction']
+                    self.player_move(status, direction)
+
         except:
-            print(sys.exc_info()[0])
-            return json.dumps("Invalid JSON, command, or missing parameters")
+            print(sys.exc_info())
+            return self.json_response("Invalid JSON, command, or missing parameters")
 
-
-    def player_auth(self, client, username, password):
+    def player_auth(self, username, password):
         if username=='tom' and password=='pass':
-            client.load_profile()
+            self.client.load_profile()
 
-    def rcon_auth(self, client, password):
-        if password == client.factory.config['rcon_password']:
-            client.rcon_auth = True
+    def player_move(self, status, direction):
+        data = {"type": "player_move", "data": {
+            "sid": self.client.sid,
+            "status": status,
+            "direction": direction
+        }}
+        self.client.factory.send_all(self.json_response(data))
 
-    def rcon_command(self, client, command):
-        if not client.rcon_auth:
-            return "No RCON auth"
+    def rcon_auth(self, password):
+        if password == self.client.factory.config['rcon_password']:
+            self.client.rcon_auth = True
+            return self.json_response('Authenticated!')
+
+    def rcon_command(self, command):
+        if not self.client.rcon_auth:
+            return self.json_response("No RCON auth")
+
         if command == 'status':
             clients = []
-            for i in client.factory.clients:
-                cl = client.factory.clients[i]
+            for i in self.client.factory.clients:
+                cl = self.client.factory.clients[i]
                 row = {}
                 row["sid"] = cl.sid
                 row["ip"] = "%s:%s" % (cl.transport.client[0], cl.transport.client[1])
                 row["rcon"] = cl.rcon_auth
                 clients.append(row)
             return json.dumps(clients)
+            
         if command.startswith("kick"):
             id = int(command.split(' ')[1])
-            if id in client.factory.clients.keys():
-                client.factory.clients[id].transport.loseConnection()
-                return "SID kicked"
+            if id in self.client.factory.clients.keys():
+                self.client.factory.clients[id].transport.loseConnection()
+                return self.json_response("SID kicked")
             else:
-                return "SID not found"
+                return self.json_response("SID not found")
