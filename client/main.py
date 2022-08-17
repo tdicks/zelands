@@ -7,6 +7,7 @@ import os
 from pygame.locals import *
 from events import EventHandler
 from level import Level
+from player import *
 class Game:
     def __init__(self):
         self._running = True
@@ -25,6 +26,7 @@ class Game:
         self._running = True
         self.event_handler = EventHandler(self)
 
+
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
@@ -33,8 +35,9 @@ class Game:
     def on_loop(self):
         dt = self.clock.tick() / 1000
         self.level.run(dt)
+        for bullet in player_bullets:
+            bullet.main(display)
         pygame.display.update()
-       
     
     def on_render(self):
         pass

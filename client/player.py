@@ -1,6 +1,9 @@
+from turtle import speed, width
 import pygame
+import math
 from support import *
-
+display = pygame.display.set_mode((800,600))
+test = 0
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group):
         super().__init__(group)
@@ -18,7 +21,6 @@ class Player(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 300
     
-    
     def import_assets(self):
         # key pairs for all possible animations
         self.animations = {'up': [],'down': [],'left': [], 'right': [],'up_idle': [], 'down_idle': [],'left_idle': [], 'right_idle': []}
@@ -34,12 +36,14 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations[self.status][int(self.frame_index)]
 
     def input(self):
-
+        global test
         keys = pygame.key.get_pressed()
         # will need to change the keys to use the config file but struggle with this one.
         if keys[pygame.K_w]:
             self.direction.y = -1
             self.status = 'up'
+            test = test + 1
+            print(test)
         elif keys[pygame.K_s]:
             self.direction.y = 1
             self.status = 'down'
@@ -57,6 +61,12 @@ class Player(pygame.sprite.Sprite):
         
         # Only needed to check direction of player in terminal
         # print(self.direction)
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        left, middle, right = pygame.mouse.get_pressed()
+        if left:
+            player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
+        
 
     def get_status(self):
         # checks if player is in a state of movement if its not it appends the status with _idle 
@@ -82,3 +92,21 @@ class Player(pygame.sprite.Sprite):
         self.get_status()
         self.move(dt)
         self.animate(dt)
+
+player_bullets = []
+class PlayerBullet:
+    def __init__(self, x, y, mouse_x, mouse_y):
+        self.x = x
+        self.y = y
+        self.mouse_x = mouse_x
+        self.mouse_y = mouse_y
+        self.bullet_velocity = 3
+        self.angle = math.atan2(y-mouse_y, x-mouse_x)
+        self.x_vel = math.cos(self.angle) * self.bullet_velocity
+        self.y_vel = math.sin(self.angle) * self.bullet_velocity
+
+    def main(self, display):
+        self.x -= int(self.x_vel)
+        self.y -= int(self.y_vel)
+
+        pygame.draw.circle(display, (0,0,0), (self.x, self.y), 3)
