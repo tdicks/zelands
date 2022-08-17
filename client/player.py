@@ -1,6 +1,7 @@
 from turtle import speed, width
 import pygame
 import math
+import os
 from support import *
 display = pygame.display.set_mode((800,600))
 test = 0
@@ -26,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.animations = {'up': [],'down': [],'left': [], 'right': [],'up_idle': [], 'down_idle': [],'left_idle': [], 'right_idle': []}
 
         for animation in self.animations.keys():
-            full_path = './assets/sprites/character/' + animation
+            full_path = os.path.join('assets','sprites','character', animation)
             self.animations[animation] = import_folder(full_path)
     
     def animate(self,dt):
@@ -37,6 +38,7 @@ class Player(pygame.sprite.Sprite):
 
     def input(self):
         global test
+        
         keys = pygame.key.get_pressed()
         # will need to change the keys to use the config file but struggle with this one.
         if keys[pygame.K_w]:
@@ -79,7 +81,6 @@ class Player(pygame.sprite.Sprite):
             self.status = self.status.split('_')[0] + '_idle'
         
     def move(self,dt):
-
         # normalizing a vector to stop double movement speed while moving diagonally. Sorry Tim :(
         if self.direction.magnitude() > 0:
             self.direction = self.direction.normalize()
