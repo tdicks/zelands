@@ -35,8 +35,6 @@ class Game:
     def on_loop(self):
         dt = self.clock.tick() / 1000
         self.level.run(dt)
-        for bullet in player_bullets:
-            bullet.main(display)
         pygame.display.update()
     
     def on_render(self):

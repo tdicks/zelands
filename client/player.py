@@ -20,7 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 300
-    
+
     def import_assets(self):
         # key pairs for all possible animations
         self.animations = {'up': [],'down': [],'left': [], 'right': [],'up_idle': [], 'down_idle': [],'left_idle': [], 'right_idle': []}
@@ -61,12 +61,17 @@ class Player(pygame.sprite.Sprite):
         
         # Only needed to check direction of player in terminal
         # print(self.direction)
-
+        
+        # get mouse position
         mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        #check if mouse is pressed
         left, middle, right = pygame.mouse.get_pressed()
         if left:
+            # add bullet to bullet list
             player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
-        
+        for bullet in player_bullets:
+            bullet.main(display)
 
     def get_status(self):
         # checks if player is in a state of movement if its not it appends the status with _idle 
@@ -93,7 +98,10 @@ class Player(pygame.sprite.Sprite):
         self.move(dt)
         self.animate(dt)
 
+# create bullet list
 player_bullets = []
+
+# bullet creation
 class PlayerBullet:
     def __init__(self, x, y, mouse_x, mouse_y):
         self.x = x
