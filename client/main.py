@@ -1,62 +1,22 @@
-# Insane in the main game!
+# Main piece of code that combines the game client, the UI, and the server
 
-import pygame
-import yaml
-import sys
-import os
-from pygame.locals import *
-from events import EventHandler
-from level import Level
-from player import *
-class Game:
+from client.ui import UI
+from twisted.internet import reactor
+
+class NetworkClient():
+    reactor = None
+    uiFactory = None
+
     def __init__(self):
-        self._running = True
-        self._display_surface = None
-        self.config = None
-        self.size = None
-        self.event_handler = None
+        self.reactor = reactor
+        self.uiFactory = UI
 
-    def on_init(self):
-        pygame.init()
-        pygame.display.set_caption(self.config["window"]["title"])
-        self.size = self.width, self.height = self.config['window']['width'], self.config['window']['height']
-        self._display_surface = pygame.display.set_mode(self.size,HWSURFACE)
-        self.clock = pygame.time.Clock()
-        self.level = Level()
-        self._running = True
-        self.event_handler = EventHandler(self)
+    def run(self, host, port):
+        d = self.uiFactory().start(host, port)
+        d.addCallback(lambda ignored: self.reactor.stop())
+        self.reactor.run()
 
-
-    def on_event(self, event):
-        if event.type == pygame.QUIT:
-            self._running = False
-        self.event_handler.handle(event)
-
-    def on_loop(self):
-        dt = self.clock.tick() / 1000
-        self.level.run(dt)
-        pygame.display.update()
-    
-    def on_render(self):
-        pass
-
-    def on_cleanup(self):
-        pygame.quit()
-
-    def on_execute(self):
-        if self.on_init() == False:
-            self._running = False
-
-        while(self._running):
-            for event in pygame.event.get():
-                self.on_event(event)
-
-            self.on_loop()
-            self.on_render()
-        self.on_cleanup()
-
-if __name__ == "__main__":
-    game = Game()
-    with open('config/client.yaml', 'r') as file:
-        game.config = yaml.safe_load(file)
-    game.on_execute()
+    def main(self):
+        host = "localhost"
+        port = 19820
+        self.run(host, port)

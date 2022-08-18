@@ -3,3 +3,6 @@ network:
   listen_port: 19820
 rcon_password: 'pass123'
 max_clients: 2
+service:
+  tcp_service_name: "zelands-tcp-service"
+  game_service_name: "zelands-game-service"
