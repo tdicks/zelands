@@ -1,5 +1,5 @@
 import pygame
-from player import *
+from client.player import *
 
 
 class Level:
@@ -16,7 +16,7 @@ class Level:
     def setup(self):
         self.player = Player((400,300), self.all_sprites)
 
-    def run(self,dt):
+    def run(self, dt):
         self.display_surface.fill('white')
         self.all_sprites.draw(self.display_surface)
         self.all_sprites.update(dt)

@@ -1,8 +1,9 @@
+import yaml
 from twisted.internet import reactor
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.defer import Deferred
 from twisted.protocols.policies import ProtocolWrapper, WrappingFactory
-#from client.main import Game
+from client.view import Window
 from client.network import NetworkController
 
 class ConnectionNotificationWrapper(ProtocolWrapper):
@@ -19,11 +20,14 @@ class ConnectionNotificationFactory(WrappingFactory):
 
 class UI(object):
     
-    def __init__(self, reactor=reactor):
+    config = None
+
+    def __init__(self, reactor=reactor, windowFactory=Window):
         self.reactor = reactor
+        self.windowFactory = windowFactory
 
     def connect(self, host, port):
-        clientFactory = ClientFactory
+        clientFactory = ClientFactory()
         clientFactory.protocol = lambda: NetworkController(
             self.reactor
         )
@@ -34,6 +38,11 @@ class UI(object):
     def introduce(self, protocol):
         self.protool = protocol
         return self.protool.introduce()
+
+    def got_introduced(self, environment):
+        self.window = self.windowFactory(self.reactor)
+        self.window.config = self.config
+        return self.window.go()
 
     def start(self, host, port):
         d = self.connect(host, port)

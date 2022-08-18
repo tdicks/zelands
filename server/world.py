@@ -2,6 +2,10 @@ import random
 from twisted.application.service import Service
 from shared.simulation import SimulationTime
 
+from pygame.math import Vector2
+
+from server.player import Player
+
 class GameService(Service):
     def __init__(self, world):
         self.world = world
@@ -17,3 +21,8 @@ class World(SimulationTime):
         SimulationTime.__init__(self, granularity, platform_clock)
         self.random = random
         self.players = []
+
+    def create_player(self):
+        player = Player(Vector2(400, 400))
+        self.players.append(player)
+        return player

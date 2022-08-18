@@ -7,9 +7,11 @@ class NetworkClient():
     reactor = None
     uiFactory = None
 
-    def __init__(self):
+    def __init__(self, config):
         self.reactor = reactor
         self.uiFactory = UI
+        self.uiFactory.config = config
+        self.config = config
 
     def run(self, host, port):
         d = self.uiFactory().start(host, port)

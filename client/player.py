@@ -2,7 +2,7 @@ from turtle import speed, width
 import pygame
 import math
 import os
-from support import *
+from client.support import *
 display = pygame.display.set_mode((800,600))
 test = 0
 class Player(pygame.sprite.Sprite):
