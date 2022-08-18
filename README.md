@@ -13,3 +13,14 @@ Run the below command to install all the required dependencies
 
     ```pip install -r requirements.txt```
 
+
+
+
+# Twisted server
+
+To start the twisted server, do:
+
+```
+set PYTHONPATH=%CD%
+twistd zelands_server
+```
