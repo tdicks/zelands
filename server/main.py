@@ -1,67 +1,74 @@
-# The websocket server gets fired up and attached to this
-
-import yaml
+from twisted.internet.protocol import ServerFactory
+from twisted.protocols.amp import AMP
 from twisted.internet import reactor
-from twisted.internet.protocol import Factory
-from twisted.protocols.basic import LineReceiver
-from events import EventHandler
-from profiles import ProfileManager
 
-class GameServerProtocol(LineReceiver):
+from shared.network import (
+    PlayerConnected, PlayerDisconnected, SetDirectionOf, SetMyDirection,
+    RemovePlayer
+)
 
-    def __init__(self, factory):
-        self.setLineMode()
-        self.factory = factory
-        self.sid = self.factory.generate_sid()
-        self.rcon_auth = False
-        self.profile_manager = ProfileManager(self)
-        self.event_handler = EventHandler(self)
-        self.state = "NOAUTH"
+class GameServer(AMP):
 
-    def send(self, data):
-        LineReceiver.sendLine(self, data.encode('utf-8'))
+    def __init__(self, world, clock=reactor):
+        self.world = world
+        self.clock = clock
+        self.players = {}
+        self.player = None
 
-    def connectionMade(self):
-        if len(self.factory.clients) >= self.factory.max_clients:
-            self.transport.loseConnection()
-            return
+    def playerCreated(self, player):
+        self.notifyPlayerCreated(player)
+        player.addObserver(self)
 
-        print("Client %i connected" % (self.sid))
-        self.factory.clients[self.sid] = self
+    def playerRemoved(self, player):
+        identifier = self.identifierForPlayer(player)
+        self.callremote(RemovePlayer, identifier = identifier)
+        del self.players[identifier]
+
+    def notifyPlayerCreated(self, player):
+        v = self.getPosition()
+        self.callRemote(NewPlayer,
+            identifier=self.identifierForPlayer(player),
+            x=v.x, y=v.y, z=v.z, speed=player.speed)
+
+    def sendExistingState(self):
+        self.sendExistingPlayers()
+
+    def sendExistingPlayers(self):
+
+        for player in self.world.getPlayers():
+            if player is not self.player:
+                self.notifyPlayerCreated(player)
+                player.addObserver(self)
+        self.world.addObserver(self)
+
+    def directionChanged(self, player):
+        v = player.getPosition()
+        self.callRemote(SetDirectionOf,
+            identifier = self.identifierForPlayer(player),
+            direction=player.direction,
+            x=v.x, y=v.y, z=v.z,
+            orientation=player.orientation.y)
+
+    def setMyDirection(self, direction, y):
+        self.player.orientation.y = y
+        self.player.setDirection(direction)
+        v = self.player.getPosition()
+        return {'x': v.x, 'y': v.y, 'z': v.z}
+    SetMyDirection.responder(setMyDirection)
+
+    def identifierForPlayer(self, player):
+        self.players[id(player)] = player
+        return id(player)
+
+    def playerForIdentifier(self, identifier):
+        return self.players[identifier]
 
     def connectionLost(self, reason):
-        if (self.sid in self.factory.clients):
-            print("Client %i disconnected" % (self.sid))
-            del self.factory.clients[self.sid]
+        self.world.removePlayer(self.player)
 
-    def lineReceived(self, data):
-        response = self.event_handler.handle_data(data)
-        if (response != None):
-            self.send(response)
+class GameServerFactory(ServerFactory):
+    def __init__(self, world):
+        self.world = world
 
-class GameServerFactory(Factory):
-    def __init__(self, config):
-        self.config = config
-        self.clients = {}
-        self.last_sid = 0
-        self._max_sid = 9000
-        self.max_clients = config['max_clients']
-
-    def buildProtocol(self, addr):
-        return GameServerProtocol(self)
-
-    def generate_sid(self):
-        self.last_sid = self.last_sid + 1
-        if self.last_sid > self._max_sid:
-            self.last_sid = 0
-        return self.last_sid
-
-    def send_all(self, data):
-        for cl in self.clients:
-            self.clients[cl].send(data)
-
-with open('config/server.yaml', 'r') as file:
-    config = yaml.safe_load(file)
-
-reactor.listenTCP(config['network']['listen_port'], GameServerFactory(config))
-reactor.run()
+    def buildProtocol(self, ignored):
+        return GameServer(self.world)
