@@ -10,4 +10,6 @@ The below commands will create a requirements.txt that can be used to install al
 
 Run the below command to install all the required dependencies
 
-    pip install -r requirements.txt
+
+    ```pip install -r requirements.txt```
+
