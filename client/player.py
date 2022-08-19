@@ -3,21 +3,30 @@ import pygame
 import math
 import os
 from support import *
+
 display = pygame.display.set_mode((800,600))
 
 # create bullet list
 player_bullets = []
 
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group):
+    def __init__(self, pos, group,obstacle_sprites):
         super().__init__(group)
-       
+        
         self.import_assets()
         self.status = 'down_idle'
         self.frame_index = 0
 
+        # general setup
+        self.image = pygame.image.load(os.path.join('..','assets','sprites', 'mario.png'))
+        self.rect = self.image.get_rect(center = pos)
+        self.obstacle_sprites = obstacle_sprites
+
+        # movement attributes
+
 		# general setup
-        self.image = self.animations[self.status][self.frame_index]
+        #self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(center = pos)
 
 		# movement attributes
@@ -59,25 +68,22 @@ class Player(pygame.sprite.Sprite):
             self.status = 'right'
         else:
             self.direction.x = 0
-        
+
         # Only needed to check direction of player in terminal
         # print(self.direction)
-                
-        # get mouse position
         
-        #for event in pygame.event.get():
     def pew(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
-                        
 
         for bullet in player_bullets:
             bullet.main(display)
 
     def get_status(self):
+
         # checks if player is in a state of movement if its not it appends the status with _idle 
         if self.direction.magnitude() == 0:
             self.status = self.status.split('_')[0] + '_idle'
@@ -89,10 +95,31 @@ class Player(pygame.sprite.Sprite):
 
         # horizontal movement
         self.pos.x += self.direction.x * self.speed * dt
+        self.collision('horizontal')
         self.rect.centerx = self.pos.x
 
         # vertical movement
         self.pos.y += self.direction.y * self.speed * dt
+        self.collision('vertical')
+        self.rect.centery = self.pos.y
+
+    def collision(self, direction):
+        if direction == 'horizontal':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.x > 0:  # moving right
+                        self.rect.right = sprite.rect.left
+                    if self.direction.x < 0:  # moving left
+                        self.rect.left = sprite.rect.right
+
+        if direction == 'vertical':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.y > 0:  # moving down
+                        self.rect.bottom = sprite.rect.top
+                    if self.direction.y < 0:  # moving up
+                        self.rect.top = sprite.rect.bottom
+
         self.rect.centery = self.pos.y
 
     def update(self, dt):
@@ -101,6 +128,7 @@ class Player(pygame.sprite.Sprite):
         self.get_status()
         self.move(dt)
         self.animate(dt)
+
 # bullet creation
 class PlayerBullet:
     def __init__(self, x, y, mouse_x, mouse_y):
@@ -110,6 +138,7 @@ class PlayerBullet:
         self.mouse_y = mouse_y
         self.lifetime = 50
         self.bullet_velocity = 15
+        self.angle = math.atan2(y - mouse_y, x - mouse_x)
         self.angle = math.atan2(y-mouse_y, x-mouse_x)
         self.x_vel = math.cos(self.angle) * self.bullet_velocity
         self.y_vel = math.sin(self.angle) * self.bullet_velocity
@@ -119,5 +148,5 @@ class PlayerBullet:
         self.x -= int(self.x_vel)
         self.y -= int(self.y_vel)
 
-        pygame.draw.circle(display, (0,0,0), (self.x, self.y), self.radius)
+        pygame.draw.circle(display, (0, 0, 0), (self.x, self.y), self.radius)
         self.lifetime -= 1

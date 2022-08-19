@@ -3,6 +3,7 @@ import pygame
 
 # This is reusable code and may need to be moved to shared/entities, will check with Tom about reusable chunks of code
 def import_folder(path):    
+
     surface_list = []
 
     for _, __, img_files in walk(path):
