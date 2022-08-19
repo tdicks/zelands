@@ -15,13 +15,13 @@ class Generator:
     def __init__(self):
         self.blank = ' '
 
-    def map_generation(seed_number=random.randint(0,10000)): # uses a random integer for the seed number unless the user supplies their own
-        map_base = [['X' for i in range(0, 20)] for j in range(0, 20)] # saturates a 20 x 20 grid with 'X'
+    def map_generation(grid=20,seed_number=random.randint(0,10000)): # uses a random integer for the seed number unless the user supplies their own
+        map_base = [['X' for i in range(0, grid)] for j in range(0, grid)] # saturates a 20 x 20 grid with 'X'
         random.seed(seed_number)
-        for i in range(1, 19):           #
-            for j in range(1, 19):       #   these 3 lines take the rows and columns 1 tile in from each side a saturates them as '_' (free space)
+        for i in range(1, grid-1):           #
+            for j in range(1, grid-1):       #   these 3 lines take the rows and columns 1 tile in from each side a saturates them as '_' (free space)
                 map_base[i][j] = '_'     #
-                if i in range(2,18) and j in range(2,18):
+                if i in range(2,grid-2) and j in range(2,grid-2):
                     if 'X' in [map_base[i - 1][j], map_base[i + 1][j], map_base[i][j - 1], map_base[i][j + 1]]:
                         if random.randint(1,1000) % 6 == 0: # increses the chance of like-objects spawning if there is another present in any adjacent tile
                             map_base[i][j] = 'X'
@@ -44,10 +44,17 @@ class Generator:
 
 class Level:
     def __init__(self, dt):
+        valid = False
+        while not valid:
+            try:
+                self.gridsize = int(input('enter map size: '))
+                valid = True
+            except (TypeError,ValueError):
+                print('Should be an interger')
         self.display_surface = pygame.display.get_surface()
         self.visible_sprites = pygame.sprite.Group()
         self.obst_sprites = pygame.sprite.Group()
-        self.map = Generator.map_generation()
+        self.map = Generator.map_generation(self.gridsize)
         self.dt = dt
         self.create_map()
 
