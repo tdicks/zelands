@@ -47,14 +47,17 @@ class Level:
         valid = False
         while not valid:
             try:
-                self.gridsize = int(input('enter map size: '))
+                self.gridsize = int(input('enter map size [0 for default] : '))
                 valid = True
             except (TypeError,ValueError):
                 print('Should be an interger')
         self.display_surface = pygame.display.get_surface()
         self.visible_sprites = pygame.sprite.Group()
         self.obst_sprites = pygame.sprite.Group()
-        self.map = Generator.map_generation(self.gridsize)
+        if self.gridsize == 0:
+            self.map = Generator.map_generation()
+        else:
+            self.map = Generator.map_generation(self.gridsize)
         self.dt = dt
         self.create_map()
 
