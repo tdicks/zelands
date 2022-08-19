@@ -15,7 +15,7 @@ class Generator:
     def __init__(self):
         self.blank = ' '
 
-    def map_generation(grid=20,seed_number=random.randint(0,10000)): # uses a random integer for the seed number unless the user supplies their own
+    def map_generation(grid=20,seed_number=random.randint(0,10000)): # uses a default grid size of 20 and a random integer for the seed number if not specified
         map_base = [['X' for i in range(0, grid)] for j in range(0, grid)] # saturates a 20 x 20 grid with 'X'
         random.seed(seed_number)
         for i in range(1, grid-1):           #
