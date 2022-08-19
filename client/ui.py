@@ -42,6 +42,7 @@ class UI(object):
     def got_introduced(self, environment):
         self.window = self.windowFactory(self.reactor)
         self.window.config = self.config
+        environment.start()
         return self.window.go()
 
     def start(self, host, port):

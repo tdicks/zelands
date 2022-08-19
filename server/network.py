@@ -15,6 +15,7 @@ class GameServer(AMP):
         self.world = world
         self.clock = clock
         self.players = {}
+        self.player = None
 
     def introduce(self):
         player = self.world.create_player()
@@ -26,6 +27,17 @@ class GameServer(AMP):
                 "x": v.x,
                 "y": v.y}
     Introduce.responder(introduce)
+
+    """
+    Client has told us they've moved. Save their new position and tell everyone else
+    """
+    def player_move(self, position):
+        self.player.set_position(position)
+
+    def update_player_positions(self):
+        for player in self.world.get_players():
+            if player is not self.player:
+                self.update_player_po
 
     def ident_for_player(self, player):
         self.players[id(player)] = player

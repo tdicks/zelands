@@ -26,3 +26,6 @@ class World(SimulationTime):
         player = Player(Vector2(400, 400))
         self.players.append(player)
         return player
+
+    def get_players(self):
+        return self.players

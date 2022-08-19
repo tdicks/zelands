@@ -1,6 +1,6 @@
 # Insane in the main game!
 
-from xml.etree.ElementInclude import DEFAULT_MAX_INCLUSION_DEPTH
+#from xml.etree.ElementInclude import DEFAULT_MAX_INCLUSION_DEPTH
 import pygame
 import yaml
 import sys
@@ -32,13 +32,6 @@ class Window:
         self.event = event
         self.event_handler = None
 
-    def submit_to(self):
-        pass
-        # don't actually know what this is for...
-        #self._update_loop = LoopingCall(self._check_update_loop)
-        #self._update_loop.clock = self.clock
-        #self._update_loop.start(2)
-
     def go(self):
         pygame.init()
         self.display.init()
@@ -49,9 +42,11 @@ class Window:
         self._display_loop = LoopingCall(self.display_loop)
         self._display_loop.start(1 / 60, now=False)
         self._input_loop = LoopingCall(self.handle_input)
-        #finished_deferred = self._input_loop.start(0.04, now=False)
-        #finished_deferred.addCallback(lambda ign: self._display_loop.stop())
-        #finished_deferred.addCallback(lambda ign: self.display.quit())
+        finished_deferred = self._input_loop.start(0.04, now=False)
+        finished_deferred.addCallback(lambda ign: self._display_loop.stop())
+        finished_deferred.addCallback(lambda ign: self.display.quit())
+
+        return finished_deferred
 
     def stop(self):
         if self._update_loop is not None:
