@@ -4,7 +4,10 @@ import math
 import os
 from support import *
 display = pygame.display.set_mode((800,600))
-test = 0
+
+# create bullet list
+player_bullets = []
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group):
         super().__init__(group)
@@ -36,16 +39,12 @@ class Player(pygame.sprite.Sprite):
             self.frame_index = 0
         self.image = self.animations[self.status][int(self.frame_index)]
 
-    def input(self):
-        global test
-        
+    def input(self):     
         keys = pygame.key.get_pressed()
         # will need to change the keys to use the config file but struggle with this one.
         if keys[pygame.K_w]:
             self.direction.y = -1
             self.status = 'up'
-            test = test + 1
-            print(test)
         elif keys[pygame.K_s]:
             self.direction.y = 1
             self.status = 'down'
@@ -63,15 +62,18 @@ class Player(pygame.sprite.Sprite):
         
         # Only needed to check direction of player in terminal
         # print(self.direction)
-        
+                
         # get mouse position
+        
+        #for event in pygame.event.get():
+    def pew(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
+                        
 
-        #check if mouse is pressed
-        left, middle, right = pygame.mouse.get_pressed()
-        if left:
-            # add bullet to bullet list
-            player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
         for bullet in player_bullets:
             bullet.main(display)
 
@@ -95,13 +97,10 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, dt):
         self.input()
+        self.pew()
         self.get_status()
         self.move(dt)
         self.animate(dt)
-
-# create bullet list
-player_bullets = []
-
 # bullet creation
 class PlayerBullet:
     def __init__(self, x, y, mouse_x, mouse_y):
@@ -109,13 +108,16 @@ class PlayerBullet:
         self.y = y
         self.mouse_x = mouse_x
         self.mouse_y = mouse_y
-        self.bullet_velocity = 3
+        self.lifetime = 50
+        self.bullet_velocity = 15
         self.angle = math.atan2(y-mouse_y, x-mouse_x)
         self.x_vel = math.cos(self.angle) * self.bullet_velocity
         self.y_vel = math.sin(self.angle) * self.bullet_velocity
+        self.radius = 5
 
     def main(self, display):
         self.x -= int(self.x_vel)
         self.y -= int(self.y_vel)
 
-        pygame.draw.circle(display, (0,0,0), (self.x, self.y), 3)
+        pygame.draw.circle(display, (0,0,0), (self.x, self.y), self.radius)
+        self.lifetime -= 1
