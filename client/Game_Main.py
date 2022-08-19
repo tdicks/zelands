@@ -11,7 +11,7 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('ZeLaNDS')
         self.clock = pygame.time.Clock()
-        self.level = Level()
+        self.level = Level(self.clock.tick(60)/1000)
 
 
     def run(self):

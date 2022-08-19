@@ -1,10 +1,15 @@
 import random
+import time
+
 import pygame
 from Settings import *
 from Tiles import Tile
 from player import Player
 import pygame.sprite
+import time
 
+clock = pygame.time.Clock()
+dt = clock.tick(60) / 1000
 
 class Generator:
     def __init__(self):
@@ -38,16 +43,17 @@ class Generator:
         return map_base
 
 class Level:
-    def __init__(self):
+    def __init__(self, dt):
         self.display_surface = pygame.display.get_surface()
         self.visible_sprites = pygame.sprite.Group()
         self.obst_sprites = pygame.sprite.Group()
         self.map = Generator.map_generation()
+        self.dt = dt
         self.create_map()
 
     def run(self):
         self.visible_sprites.draw(self.display_surface)
-        self.visible_sprites.update()
+        self.visible_sprites.update(self.dt)
 
     def create_map(self):
         for row_indx, row in enumerate(self.map):

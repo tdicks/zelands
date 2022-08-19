@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
 
         # general setup
-        self.image = pygame.image.load(os.path.join('assets', 'mario.png'))
+        self.image = pygame.image.load(os.path.join('..','assets','sprites', 'mario.png'))
         self.rect = self.image.get_rect(center=pos)
         self.obstacle_sprites = obstacle_sprites
 
@@ -34,14 +34,14 @@ class Player(pygame.sprite.Sprite):
                            'left_idle': [], 'right_idle': []}
 
         for animation in self.animations.keys():
-            full_path = os.path.join('assets', 'sprites', 'character', animation)
+            full_path = os.path.join('..','assets', 'sprites', 'character', animation)
             self.animations[animation] = import_folder(full_path)
 
     def animate(self, dt):
         self.frame_index += 4 * dt
         if self.frame_index >= len(self.animations[self.status]):
             self.frame_index = 0
-        self.image = self.animations[self.status][int(self.frame_index)]
+        #self.image = self.animations[self.status][int(self.frame_index)]
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -93,10 +93,12 @@ class Player(pygame.sprite.Sprite):
 
         # horizontal movement
         self.pos.x += self.direction.x * self.speed * dt
+        self.collision('horizontal')
         self.rect.centerx = self.pos.x
 
         # vertical movement
         self.pos.y += self.direction.y * self.speed * dt
+        self.collision('vertical')
         self.rect.centery = self.pos.y
 
     def collision(self, direction):
@@ -124,6 +126,7 @@ class Player(pygame.sprite.Sprite):
         self.animate(dt)
 
 
+
 # bullet creation
 class PlayerBullet:
     def __init__(self, x, y, mouse_x, mouse_y):
@@ -144,20 +147,4 @@ class PlayerBullet:
 
         pygame.draw.circle(display, (0, 0, 0), (self.x, self.y), self.radius)
         self.lifetime -= 1
-        """def collision(self,direction):
-        if direction == 'horizontal':
-            for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
-                    if self.direction.x > 0: #moving right
-                        self.rect.right = sprite.rect.left
-                    if self.direction.x < 0: #moving left
-                        self.rect.left = sprite.rect.right
-
-        if direction == 'vertical':
-            for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
-                    if self.direction.y > 0:  # moving down
-                        self.rect.bottom = sprite.rect.top
-                    if self.direction.y < 0:  # moving up
-                        self.rect.top = sprite.rect.bottom"""
 
