@@ -12,6 +12,8 @@ class Entity(pygame.sprite.Sprite):
     def __init__(self, pos, group):
         super().__init__(group)
        
+        self.observers = []
+
         self.import_assets()
         self.status = 'down_idle'
         self.frame_index = 0
@@ -39,7 +41,7 @@ class Entity(pygame.sprite.Sprite):
             self.frame_index = 0
         self.image = self.animations[self.status][int(self.frame_index)]
 
-    def get_status(self):
+    def apply_status(self):
         # checks if player is in a state of movement if its not it appends the status with _idle 
         if self.direction.magnitude() == 0:
             self.status = self.status.split('_')[0] + '_idle'
@@ -57,7 +59,25 @@ class Entity(pygame.sprite.Sprite):
         self.pos.y += self.direction.y * self.speed * dt
         self.rect.centery = self.pos.y
 
+        for observer in self.observers:
+            observer.ob_entity_moved(self)
+
     def update(self, dt):
-        self.get_status()
+        self.apply_status()
         self.move(dt)
         self.animate(dt)
+
+    def add_observer(self, observer):
+        self.observers.append(observer)
+
+    def get_position(self):
+        return self.pos
+
+    def set_position(self, position):
+        self.pos = position
+
+    def set_status(self, status):
+        self.status = status
+
+    def get_status(self):
+        return self.status

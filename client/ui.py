@@ -5,6 +5,7 @@ from twisted.internet.defer import Deferred
 from twisted.protocols.policies import ProtocolWrapper, WrappingFactory
 from client.view import Window
 from client.network import NetworkController
+from client.level import Level
 
 class ConnectionNotificationWrapper(ProtocolWrapper):
 
@@ -21,6 +22,7 @@ class ConnectionNotificationFactory(WrappingFactory):
 class UI(object):
     
     config = None
+    protocol = None
 
     def __init__(self, reactor=reactor, windowFactory=Window):
         self.reactor = reactor
@@ -35,20 +37,27 @@ class UI(object):
         self.reactor.connectTCP(host, port, factory)
         return factory.connectionNotification
 
-    def introduce(self, protocol):
-        self.protool = protocol
-        return self.protool.introduce()
+    def join_server(self, protocol):
+        self.protocol = protocol
+        return self.protocol.join_server()
 
-    def got_introduced(self, environment):
+    def server_joined(self, thing):
+        # We've joined the server, now tell the server we want to spawn
+        # and create our environment
+        return self.protocol.player_initial_spawn()
+
+    def player_initial_spawn(self, environment):
         self.window = self.windowFactory(self.reactor)
         self.window.config = self.config
+        self.window.environment = environment
         environment.start()
         return self.window.go()
 
     def start(self, host, port):
         d = self.connect(host, port)
-        d.addCallback(self.introduce)
-        d.addCallback(self.got_introduced)
+        d.addCallback(self.join_server)
+        d.addCallback(self.server_joined)
+        d.addCallback(self.player_initial_spawn)
         return d
 
 

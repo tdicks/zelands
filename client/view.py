@@ -29,6 +29,7 @@ class Window:
         self.clock = clock
         self.pg_clock = pygame.time.Clock()
         self.size = None
+        self.environment = None
         self.event = event
         self.event_handler = None
 
@@ -37,7 +38,6 @@ class Window:
         self.display.init()
         self.display.set_caption(self.config["window"]["title"])
         self.size = self.width, self.height = self.config['window']['width'], self.config['window']['height']
-        self.level = Level()
         self.screen = self.display.set_mode(self.size, HWSURFACE)
         self._display_loop = LoopingCall(self.display_loop)
         self._display_loop.start(1 / 60, now=False)
@@ -59,7 +59,7 @@ class Window:
             self.handle_event(event)
 
     def handle_event(self, event):
-        print(event)
+        #print(event)
         if event.type == pygame.QUIT:
             self.stop()
         """
@@ -79,5 +79,5 @@ class Window:
         """
     def display_loop(self):
         dt = self.pg_clock.tick() / 1000
-        self.level.run(dt)
+        self.environment.run(dt)
         pygame.display.update()

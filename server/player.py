@@ -2,12 +2,14 @@
 Server-side repesentation of a player
 """
 
-class Player(object):
-    def __init__(self, position):
-        self.position = position
+from shared.entity import Entity
+from pygame.math import Vector2
 
-    def get_position(self):
-        return self.position
-
-    def set_position(self, position):
-        self.position = position
+class Player(Entity):
+    def __init__(self, position, status='down_idle'):
+        self.pos = position
+        self.status = status
+    
+    def spawn(self):
+        self.set_position(Vector2(200, 200))
+        #self.move()

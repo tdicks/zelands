@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Zelands Dev Server",
+            "type": "python",
+            "request": "launch",
+            "program": "start_server_dev.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python: Zelands Client",
             "type": "python",
             "request": "launch",

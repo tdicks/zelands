@@ -24,7 +24,7 @@ class Player(Entity):
             self.direction.y = -1
             self.status = 'up'
             test = test + 1
-            print(test)
+            #print(test)
         elif keys[pygame.K_s]:
             self.direction.y = 1
             self.status = 'down'
@@ -41,7 +41,7 @@ class Player(Entity):
             self.direction.x = 0
         
         # Only needed to check direction of player in terminal
-        print(self.direction)
+        #print(self.direction)
         
         # get mouse position
         mouse_x, mouse_y = pygame.mouse.get_pos()
