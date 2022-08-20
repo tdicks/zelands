@@ -72,6 +72,9 @@ class Level:
                 y = row_indx * TILESIZE
                 if col == 'X':
                     Tile((x,y), [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
+            for col_indx, col in enumerate(row):
+                x = col_indx * TILESIZE # TILESIZE is stored in Settings.py
+                y = row_indx * TILESIZE        
                 if col == 'P':
                     print(f'x: {x}    y: {y}')
                     Player((x,y), [self.visible_sprites], self.obst_sprites) # Player is a member of 'visible...' and only references 'obst...'

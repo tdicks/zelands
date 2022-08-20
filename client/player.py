@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
 
         # general setup
-        self.image = pygame.image.load(os.path.join('..','assets','sprites', 'mario.png'))
+        self.image = pygame.image.load(os.path.join('assets','sprites', 'mario.png'))
         self.rect = self.image.get_rect(center = pos)
         self.obstacle_sprites = obstacle_sprites
 
