@@ -78,7 +78,8 @@ class Level:
                 if col == 'P':
                     print(f'x: {x}    y: {y}')
                     Player((x,y), [self.visible_sprites], self.obst_sprites) # Player is a member of 'visible...' and only references 'obst...'
-
+        BGM.set_volume(-4)
+        BGM.play(-1)
 #class Level:
 #    def __init__(self):
 #
