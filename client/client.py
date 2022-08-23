@@ -1,7 +1,7 @@
 # Gameserver client
 # This module handles interaction between the game client and the game server
 
-import socketio
+'''import socketio
 
 sock = socketio.Client()
 
@@ -14,4 +14,4 @@ class Client:
     
   @sock.event
   def message(data):
-    pass
+    pass'''

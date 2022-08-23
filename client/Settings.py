@@ -1,9 +1,10 @@
 import pygame, os
 pygame.mixer.init()
+
 FPS = 60
-WIDTH, HEIGHT = int(1280), int(720)
-TILESIZE = 64
-BGM = pygame.mixer.Sound(os.path.join('..','Assets','sounds', 'RSPTN.mp3'))
+WIDTH, HEIGHT = int(1280), int(980)
+TILESIZE = 32
+#BGM = pygame.mixer.Sound(os.path.join('assets', 'sounds', 'SOM31.mp3'))
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)

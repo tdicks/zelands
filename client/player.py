@@ -2,6 +2,7 @@ from turtle import speed, width
 import pygame
 import math
 import os
+from Settings import TILESIZE
 from support import *
 
 display = pygame.display.set_mode((800,600))
@@ -19,7 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
 
         # general setup
-        self.image = pygame.image.load(os.path.join('..','assets','sprites', 'mario.png'))
+        self.image = pygame.image.load(os.path.join('assets','sprites', 'mario.png'))
         self.rect = self.image.get_rect(center = pos)
         self.obstacle_sprites = obstacle_sprites
 
@@ -47,6 +48,7 @@ class Player(pygame.sprite.Sprite):
         if self.frame_index >= len(self.animations[self.status]):
             self.frame_index = 0
         self.image = self.animations[self.status][int(self.frame_index)]
+        self.image = pygame.transform.scale(self.image,(TILESIZE*2,TILESIZE*2))
 
     def input(self):     
         keys = pygame.key.get_pressed()
