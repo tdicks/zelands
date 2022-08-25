@@ -12,8 +12,8 @@ Player entity which supports local input
 """
 
 class Player(Entity):
-    def __init__(self, pos, group):
-        super().__init__(pos, group)
+    def __init__(self):
+        Entity.__init__(self)
        
     def input(self):
         global test
@@ -21,22 +21,22 @@ class Player(Entity):
         keys = pygame.key.get_pressed()
         # will need to change the keys to use the config file but struggle with this one.
         if keys[pygame.K_w]:
+            # up
             self.direction.y = -1
-            self.status = 'up'
             test = test + 1
             #print(test)
         elif keys[pygame.K_s]:
+            # down
             self.direction.y = 1
-            self.status = 'down'
         else:
             self.direction.y = 0
 
         if keys[pygame.K_a]:
+            # left
             self.direction.x = -1
-            self.status = 'left'
         elif keys[pygame.K_d]:
+            # right
             self.direction.x = 1
-            self.status = 'right'
         else:
             self.direction.x = 0
         

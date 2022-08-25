@@ -1,92 +1,130 @@
-import json
-from typing import Union
-import sys
-import os
+from server.player import Player
+from shared.network import *
 
-sys.path.append(os.getcwd())
+#
+#   Event handlers for the Zelands server side
+#
 
-from shared.requests import *
+class WorldEventHandler:
+    """
+    Handles events that occur in the server world
+    """
 
-class EventHandler:
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, world):
+        self.world = world
+
+#   Player events
+#   (events called due to player interactions)
+
+    def player_connected(self, client, client_id):
+        # Client has connected
+        # Let's just boot them right into the game.
+        pass
+        
+
+    def player_disconnected(self, client):
+        # A client has told us they're disconnecting
+        # Save their stuff, update entity table, tell other players, goodbye and goodnight
         pass
 
-    def json_response(self, response):
-        if type(response) == str:
-            return json.dumps({"message": response})
-        else:
-            return json.dumps(response)
+    def player_client_ready(self, client):
+        player = Player()
+        client.player_id = id(player)
+        client.player = player
+        self.world.add_entity(client.player_id, player)
+        client.callRemote(PlayerCreated,
+            player_id=client.player_id
+        )
+        client.callRemote(PlayerSpawn,
+            x=200,
+            y=200,
+            orientation=b'down'
+        )
 
-    def handle_data(self, bytes):
-        try:
-            request = json.loads(bytes)
-            if not request.keys() >= {"type", "data"}:
-                return self.json_response("Missing type and/or data keys")
+    def player_moved(self, client, x, y, orientation):
+        entity_id = id(client.player)
+        self.world.announce_entity_moved(entity_id, x, y, orientation)
 
-            reqtype = request['type']
-            data = request['data']
+    def player_moving(self, client, x, y):
+        entity_id = client.player_id
+        self.world.announce_entity_moving(entity_id, x, y)
 
-            if reqtype == 'player_auth':
-                if data.keys() >= {"username", "password"}:
-                    username = data['username']
-                    password = data['password']
-                    return self.player_auth(username, password)
+    def player_item_equipped(self, client, item_id, slot):
+        # A client's player has equipped an item
+        # Update entity table and inform other clients so they can render appropriately
+        pass
 
-            if reqtype == 'rcon_auth':
-                password = data['password']
-                return self.rcon_auth(password)
+    def player_primary_action(self, client):
+        # A player has performed the primary action for an item
+        # Call the item's primary action handler and do something about it
+        pass
 
-            if reqtype == 'rcon_command':
-                command = data['command']
-                return self.rcon_command(command)
+    def player_secondary_action(self, client):
+        # A player has performed the secondary action for an item
+        # Call the item's secondary action handler and do something about it
+        pass
 
-            if reqtype == "player_move":
-                if data.keys() >= {"status", "direction"}:
-                    status = data['status']
-                    direction = data['direction']
-                    self.player_move(status, direction)
+    def player_item_collected(self, client, item_id):
+        # A player has picked up an item
+        # Remove it from the world, and add it to their inventory on the server
+        pass
 
-        except:
-            print(sys.exc_info())
-            return self.json_response("Invalid JSON, command, or missing parameters")
+    def player_item_dropped(self, client, item_id):
+        # A player has dropped an item
+        # Remove it from their inventory and spawn the item in the world
+        pass
 
-    def player_auth(self, username, password):
-        if username=='tom' and password=='pass':
-            self.client.load_profile()
+    #   Entity events
+    #   (events called due to actions in the game world)
 
-    def player_move(self, status, direction):
-        data = {"type": "player_move", "data": {
-            "sid": self.client.sid,
-            "status": status,
-            "direction": direction
-        }}
-        self.client.factory.send_all(self.json_response(data))
+    def entity_created(self, entity_id, data):
+        self.world.announce_entity_created(entity_id, data)
 
-    def rcon_auth(self, password):
-        if password == self.client.factory.config['rcon_password']:
-            self.client.rcon_auth = True
-            return self.json_response('Authenticated!')
+    def entity_removed(self, entity_id):
+        # the world has removed an entity, tell clients to remove
+        # the entity from their entities table
+        pass 
 
-    def rcon_command(self, command):
-        if not self.client.rcon_auth:
-            return self.json_response("No RCON auth")
+    def entity_spawned(self, entity_id, x, y, orientation):
+        # When an entity spawns in the world, tell all the clients
+        # so they can render it
+        # The entity must be created first!!
+        pass
 
-        if command == 'status':
-            clients = []
-            for i in self.client.factory.clients:
-                cl = self.client.factory.clients[i]
-                row = {}
-                row["sid"] = cl.sid
-                row["ip"] = "%s:%s" % (cl.transport.client[0], cl.transport.client[1])
-                row["rcon"] = cl.rcon_auth
-                clients.append(row)
-            return json.dumps(clients)
-            
-        if command.startswith("kick"):
-            id = int(command.split(' ')[1])
-            if id in self.client.factory.clients.keys():
-                self.client.factory.clients[id].transport.loseConnection()
-                return self.json_response("SID kicked")
-            else:
-                return self.json_response("SID not found")
+    def entity_despawned(self, entity_id):
+        # The world has removed an entity from play but the entity still
+        # exists in the table
+        # Usually used for death and respawning
+        # The entity must be created first!!
+        pass
+
+    def entity_moved(self, entity_id, x, y, orientation):
+        self.world.announce_entity_moved(entity_id, x, y, orientation)
+
+    def entity_died(self, entity_id):
+        # An entity has died or been killed in the world, tell all the clients about it
+        # so they can render appropriate animations
+        pass
+
+    def entity_damaged(self, entity_id):
+        # An entity has taken damage of some kind. tell clients so they can render
+        # an "ouch" animation
+        pass
+
+    def entity_item_equipped(self, entity_id, item_id):
+        # An entity has equipped an item. Tell clients so they can render the item on the
+        # entity
+        pass
+
+    def entity_primary_action(self, entity_id):
+        # An entity has performed its primary action
+        pass
+
+    def entity_secondary_action(self, entity_id):
+        # An entity has performed its secondary action
+        pass
+
+    def entity_updated(self, entity_id, data):
+        # An entity's properties have been updated
+        # tell all the clients
+        pass

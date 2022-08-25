@@ -6,6 +6,8 @@ from twisted.protocols.policies import ProtocolWrapper, WrappingFactory
 from client.view import Window
 from client.network import NetworkController
 from client.level import Level
+from client.environment import Environment
+from client.events import EnvironmentEventHandler
 
 class ConnectionNotificationWrapper(ProtocolWrapper):
 
@@ -23,6 +25,7 @@ class UI(object):
     
     config = None
     protocol = None
+    environment = None
 
     def __init__(self, reactor=reactor, windowFactory=Window):
         self.reactor = reactor
@@ -31,7 +34,7 @@ class UI(object):
     def connect(self, host, port):
         clientFactory = ClientFactory()
         clientFactory.protocol = lambda: NetworkController(
-            self.reactor
+            clock=self.reactor
         )
         factory = ConnectionNotificationFactory(clientFactory)
         self.reactor.connectTCP(host, port, factory)
@@ -41,23 +44,35 @@ class UI(object):
         self.protocol = protocol
         return self.protocol.join_server()
 
-    def server_joined(self, thing):
-        # We've joined the server, now tell the server we want to spawn
-        # and create our environment
-        return self.protocol.player_initial_spawn()
+    def create_environment(self, thing):
+        # We've joined the server, now create our environment and
+        # introduce the environment and network client to each other
+        self.environment = Environment(platform_clock=self.reactor, granularity=100)
+        self.environment.set_client(self.protocol)
+        self.protocol.set_environment(self.environment)
+        self.environment.set_event_handler(EnvironmentEventHandler(self.environment))
+        self.environment.start()
+        #return self.protocol.player_initial_spawn()
 
-    def player_initial_spawn(self, environment):
+    def start_ui(self, thing):
         self.window = self.windowFactory(self.reactor)
         self.window.config = self.config
-        self.window.environment = environment
-        environment.start()
+        self.window.environment = self.environment
+        self.protocol.send_client_ready()
         return self.window.go()
+
+    #def client_ready(self, thing):
+    #    return self.protocol.send_client_ready()
+
+    def do_error(self, someting):
+        print(someting)
 
     def start(self, host, port):
         d = self.connect(host, port)
-        d.addCallback(self.join_server)
-        d.addCallback(self.server_joined)
-        d.addCallback(self.player_initial_spawn)
+        d.addBoth(self.join_server)
+        d.addCallback(self.create_environment)
+        d.addCallback(self.start_ui)
+        #d.addCallback(self.client_ready)
         return d
 
 

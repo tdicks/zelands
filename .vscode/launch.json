@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python: Zelands Dev Server",
             "type": "python",
             "request": "launch",
@@ -13,10 +21,18 @@
             "justMyCode": true
         },
         {
-            "name": "Python: Zelands Client",
+            "name": "Python: Zelands Client Only",
             "type": "python",
             "request": "launch",
             "program": "start_game.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Zelands Client Server Combo Edition",
+            "type": "python",
+            "request": "launch",
+            "program": "start_game_localserver.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

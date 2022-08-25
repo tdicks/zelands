@@ -1,11 +1,15 @@
 import yaml
-from os.path import join
+import os
 from zope.interface import implementer
 
 from twisted.application.service import IServiceMaker
 from twisted.application.internet import TCPServer
 from twisted.plugin import IPlugin
 from twisted.python import usage
+
+# This is a headless dedicated server
+# Set the video driver to dummy so pygame doesn't show a window
+os.environ['SDL_VIDEODRIVER'] = 'dummy'
 
 class Options(usage.Options):
     optParameters = [

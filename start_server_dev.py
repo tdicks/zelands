@@ -1,5 +1,5 @@
 import yaml
-from os.path import join
+import os
 from zope.interface import implementer
 
 from twisted.application.service import IServiceMaker
@@ -14,6 +14,10 @@ from server.network import GameServerFactory
 
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
+
+# This is a headless dedicated server
+# Set the video driver to dummy so pygame doesn't show a window
+os.environ['SDL_VIDEODRIVER'] = 'dummy'
 
 with open("config/server.yaml", 'r') as file:
     config = yaml.safe_load(file)

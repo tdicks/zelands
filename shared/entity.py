@@ -3,29 +3,39 @@ import pygame
 import math
 import os
 from client.support import *
+from shared.events import EventManager
 
 """
 Base entity class
 Supports basic movement and animation
 """
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, pos, group):
-        super().__init__(group)
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
        
-        self.observers = []
+        self.callbacks = {}
 
         self.import_assets()
-        self.status = 'down_idle'
+        self.orientation = 'down'
         self.frame_index = 0
 
+        self._layer = 2
+
 		# general setup
-        self.image = self.animations[self.status][self.frame_index]
-        self.rect = self.image.get_rect(center = pos)
+        self.image = self.animations[self.orientation][self.frame_index]
+        self.rect = self.image.get_rect(center = (0,0))
+        self.events = EventManager()
 
 		# movement attributes
         self.direction = pygame.math.Vector2()
+        # Used to control entity_moving trigger
+        self.previous_direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 300
+
+        self.moving = False
+
+        self.server_entity_id = None
 
     def import_assets(self):
         # key pairs for all possible animations
@@ -36,17 +46,28 @@ class Entity(pygame.sprite.Sprite):
             self.animations[animation] = import_folder(full_path)
     
     def animate(self,dt):
-        self.frame_index += 4 * dt
-        if self.frame_index >= len(self.animations[self.status]):
-            self.frame_index = 0
-        self.image = self.animations[self.status][int(self.frame_index)]
 
-    def apply_status(self):
-        # checks if player is in a state of movement if its not it appends the status with _idle 
+        animation = self.orientation
+        if self.is_idle:
+            animation = animation + "_idle"
+
+        self.frame_index += 4 * dt
+        if self.frame_index >= len(self.animations[animation]):
+            self.frame_index = 0
+        self.image = self.animations[animation][int(self.frame_index)]
+
+    def idle_check(self):
+        """
+        Keep the is_idle property up to date depending on whether the
+        entity is moving or not.
+        """
         if self.direction.magnitude() == 0:
-            self.status = self.status.split('_')[0] + '_idle'
+            self.is_idle = True
+        else:
+            self.is_idle = False
         
     def move(self,dt):
+
         # normalizing a vector to stop double movement speed while moving diagonally. Sorry Tim :(
         if self.direction.magnitude() > 0:
             self.direction = self.direction.normalize()
@@ -59,25 +80,81 @@ class Entity(pygame.sprite.Sprite):
         self.pos.y += self.direction.y * self.speed * dt
         self.rect.centery = self.pos.y
 
-        for observer in self.observers:
-            observer.ob_entity_moved(self)
+        # check if our direction has changed, including 0,0 (stopped)
+        if self.direction.x != self.previous_direction.x or \
+            self.direction.y != self.previous_direction.y:
+
+            # Moving also changes our orientation, so set it here
+            if self.direction.y == -1:
+                self.orientation = 'up'
+            elif self.direction.y == 1:
+                self.orientation = 'down'
+            elif self.direction.x == -1:
+                self.orientation = 'left'
+            elif self.direction.x == 1:
+                self.orientation = 'right'
+
+            # it has, so trigger the entity_moving event
+            self.events.trigger('entity_moving', self)
+        
+        # Have to set the x and y attributes directly otherwise
+        # python just adds a reference to the original Vector() object
+        # and then the direction check doesn't work!
+        self.previous_direction.x = self.direction.x
+        self.previous_direction.y = self.direction.y
+
 
     def update(self, dt):
-        self.apply_status()
+        self.idle_check()
         self.move(dt)
         self.animate(dt)
 
-    def add_observer(self, observer):
-        self.observers.append(observer)
+    def set_direction(self, x, y):
+        """
+        Set the direction the entity is heading towards.
+        Up:     y=-1
+        Down:   y=1
+        Left:   x=-1
+        Right:  x=1
+        Stop:   x=0, y=0
 
-    def get_position(self):
-        return self.pos
+        The client will render the entity's movement, the server
+        just tells the client which direction go to in.
+        """
+        self.direction.x = x
+        self.direction.y = y
 
-    def set_position(self, position):
-        self.pos = position
+    def get_direction(self):
+        return self.direction
 
+    def set_position(self, x, y):
+        self.rect.centerx = x
+        self.rect.centery = y
+        pass
+
+    # No use for these at the moment...
     def set_status(self, status):
         self.status = status
 
     def get_status(self):
         return self.status
+
+    def get_orientation(self):
+        return self.orientation
+
+    def set_orientation(self, orientation):
+        """
+        Forcibly set the orientation of the entity
+        """
+        self.orientation = orientation
+
+class Missile(object):
+    """
+    Base class for bullets, magic missiles, arrows, and any other types of airborne pain delivery.
+    """
+
+    velocity = None
+    base_dmg = 0
+
+    def __init__(self):
+        pass
