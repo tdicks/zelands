@@ -1,5 +1,18 @@
-import pygame
+import pygame,os
+import random
 from menu import *
+
+#define some commonly used colours
+WHITE = (255, 255, 255)
+LIGHTGREY = (192, 192, 192)
+DARKGREY = (128, 128, 128)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+MAGENTA = (255, 0, 255)
+CYAN = (0, 255, 255)
 
 class Game():
     def __init__(self):
@@ -10,14 +23,16 @@ class Game():
         BGM.play(-1)
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-        self.DISPLAY_W, self.DISPLAY_H = 800, 600
+        self.DISPLAY_W, self.DISPLAY_H = 1280, 768
         self.display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)))
         self.font_name = os.path.join('client','menu','8-BIT WONDER.TTF')
        # self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
+        self.clock = pygame.time.Clock()
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
+        self.controls = ControlsMenu(self)
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
 
@@ -25,13 +40,13 @@ class Game():
         while self.playing:
             self.check_events()
             if self.START_KEY:
-                self.playing= False
+                self.playing = False
             self.display.fill(self.BLACK)
+            self.stars(self.DISPLAY_W,self.DISPLAY_H)
             self.draw_text('Thanks for Playing', 20, self.DISPLAY_W/2, self.DISPLAY_H/2)
             self.window.blit(self.display, (0,0))
             pygame.display.update()
             self.reset_keys()
-
 
 
     def check_events(self):
@@ -48,6 +63,7 @@ class Game():
                     self.DOWN_KEY = True
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
+        self.clock.tick(30) 
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
@@ -59,25 +75,44 @@ class Game():
         text_rect.center = (x,y)
         self.display.blit(text_surface,text_rect)
 
-    def stars():
-        #animate some motherfucking stars
+    def stars(self,DISPLAY_W,DISPLAY_H):
+        #create the locations of the stars for when we animate the background
+        star_field_slow = []
+        star_field_medium = []
+        star_field_fast = []
+
+        for slow_stars in range(50): #birth those plasma balls, baby
+            star_loc_x = random.randrange(0, DISPLAY_W)
+            star_loc_y = random.randrange(0, DISPLAY_H)
+            star_field_slow.append([star_loc_x, star_loc_y])
+
+        for medium_stars in range(35):
+            star_loc_x = random.randrange(0, DISPLAY_W)
+            star_loc_y = random.randrange(0, DISPLAY_H)
+            star_field_medium.append([star_loc_x, star_loc_y])
+
+        for fast_stars in range(15):
+            star_loc_x = random.randrange(0, DISPLAY_W)
+            star_loc_y = random.randrange(0, DISPLAY_H)
+            star_field_fast.append([star_loc_x, star_loc_y])
+
         for star in star_field_slow:
             star[1] += 1
-            if star[1] > height:
-                star[0] = random.randrange(0, width)
-                star[1] = random.randrange(-20, -5)
-            pygame.draw.circle(screen, DARKGREY, star, 3)
+        if star[1] > DISPLAY_H:
+            star[0] = random.randrange(0, DISPLAY_W)
+            star[1] = random.randrange(-20, -5)
+        pygame.draw.circle(self.display, DARKGREY, star, 3)
 
         for star in star_field_medium:
             star[1] += 4
-            if star[1] > height:
-                star[0] = random.randrange(0, width)
+            if star[1] > DISPLAY_H:
+                star[0] = random.randrange(0, DISPLAY_W)
                 star[1] = random.randrange(-20, -5)
-            pygame.draw.circle(screen, LIGHTGREY, star, 2)
+            pygame.draw.circle(self.display, LIGHTGREY, star, 2)
 
         for star in star_field_fast:
             star[1] += 8
-            if star[1] > height:
-                star[0] = random.randrange(0, width)
+            if star[1] > DISPLAY_H:
+                star[0] = random.randrange(0, DISPLAY_W)
                 star[1] = random.randrange(-20, -5)
-            pygame.draw.circle(screen, YELLOW, star, 1)
+            pygame.draw.circle(self.display, CYAN, star, 1)

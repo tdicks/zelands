@@ -1,4 +1,4 @@
-import pygame
+import pygame,os
 import random
 
 screen = pygame.display.set_mode([1024, 768])
@@ -6,6 +6,7 @@ height = pygame.display.Info().current_h
 width = pygame.display.Info().current_w
 pygame.display.set_caption('Window Caption')
 clock = pygame.time.Clock()
+font_name = os.path.join('client','menu','8-BIT WONDER.TTF')
 
 #create the locations of the stars for when we animate the background
 star_field_slow = []
@@ -44,6 +45,13 @@ pygame.init()
 
 app_is_alive = True
 
+def draw_text(text, size, x, y):
+    font = pygame.font.Font(font_name,size)
+    text_surface = font.render(text, True, WHITE)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (x,y)
+    screen.blit(text_surface,text_rect)
+
 while app_is_alive:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -55,7 +63,7 @@ while app_is_alive:
 
     #my soul knows only darkness
     screen.fill(BLACK)
-
+    draw_text('Thanks for Playing', 20, 512, 384)
     #animate some motherfucking stars
     for star in star_field_slow:
         star[1] += 1
@@ -76,11 +84,10 @@ while app_is_alive:
         if star[1] > height:
             star[0] = random.randrange(0, width)
             star[1] = random.randrange(-20, -5)
-        pygame.draw.circle(screen, YELLOW, star, 1)
-
+        pygame.draw.circle(screen, CYAN, star, 1)
+    
     #redraw everything we've asked pygame to draw
     pygame.display.flip()
-
     #set frames per second
     clock.tick(30)
 

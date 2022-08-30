@@ -113,6 +113,22 @@ class OptionsMenu(Menu):
             self.draw_cursor()
             self.blit_screen()
 
+    # def move_cursor(self):
+    #     if self.game.DOWN_KEY:
+    #         if self.state == 'Volume':
+    #             self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
+    #             self.state = 'Controls'
+    #         elif self.state == 'Controls':
+    #             self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
+    #             self.state = 'Volume'
+    #     elif self.game.UP_KEY:
+    #         if self.state == 'Controls':
+    #             self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
+    #             self.state = 'Volume'
+    #         elif self.state == 'Volume':
+    #             self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
+    #             self.state = 'Controls'
+
     def check_input(self):
         if self.game.BACK_KEY:
             self.game.curr_menu = self.game.main_menu
@@ -125,8 +141,9 @@ class OptionsMenu(Menu):
                 self.state = 'Volume'
                 self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
         elif self.game.START_KEY:
-            # TO-DO: Create a Volume Menu and a Controls Menu
-            pass
+            # TO-DO: Create a Volume Menu and a Controls 
+            #pass
+            self.game.curr_menu = self.game.controls
 
 class CreditsMenu(Menu):
     def __init__(self, game):
@@ -142,4 +159,31 @@ class CreditsMenu(Menu):
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.draw_text('Made by me', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.blit_screen()
+
+class ControlsMenu(Menu):
+    def __init__(self,game):
+        Menu.__init__(self,game)
+        self.state = 'Controls'
+        self.upx, self.upy = self.mid_w, self.mid_h + 20
+        self.downx, self.downy = self.mid_w, self.mid_h + 40
+        self.leftx, self.lefty = self.mid_w, self.mid_h + 60
+        self.rightx, self.righty = self.mid_w, self.mid_h + 80
+        self.cursor_rect.midtop = (self.upx + self.offset, self.upy)
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            if self.game.START_KEY or self.game.BACK_KEY:
+                self.game.curr_menu = self.game.options
+                self.run_display = False
+            self.game.display.fill(self.game.BLACK)
+            self.game.draw_text('Controls', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
+            self.game.draw_text('Up', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Down', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Left', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Right', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Primary Fire', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Alt Fire', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
             self.blit_screen()
