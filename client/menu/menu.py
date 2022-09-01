@@ -1,4 +1,17 @@
 import pygame,os
+import random
+
+#define some commonly used colours
+WHITE = (255, 255, 255)
+LIGHTGREY = (192, 192, 192)
+DARKGREY = (128, 128, 128)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+MAGENTA = (255, 0, 255)
+CYAN = (0, 255, 255)
 
 class Menu():
     def __init__(self, game):
@@ -17,8 +30,10 @@ class Menu():
         self.game.window.blit(self.game.display, (0, 0))
         pygame.display.update()
         self.game.reset_keys()
-
 class MainMenu(Menu):
+    '''
+    Class for main menu
+    '''
     def __init__(self, game):
         Menu.__init__(self, game)
         self.state = "Start"
@@ -29,6 +44,9 @@ class MainMenu(Menu):
         self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
 
     def display_menu(self):
+        '''
+        Draws and displays the main menu
+        '''
         self.run_display = True
         while self.run_display:
             self.game.check_events()
@@ -61,7 +79,7 @@ class MainMenu(Menu):
         elif self.game.UP_KEY:
             self.cursor_sound()
             if self.state == 'Start':
-                self.cursor_rect.midtop = (self.exitx + self.offset, self.exitx)
+                self.cursor_rect.midtop = (self.exitx + self.offset, self.exity)
                 self.state = 'Exit'
             elif self.state == 'Options':
                 self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
@@ -113,22 +131,6 @@ class OptionsMenu(Menu):
             self.draw_cursor()
             self.blit_screen()
 
-    # def move_cursor(self):
-    #     if self.game.DOWN_KEY:
-    #         if self.state == 'Volume':
-    #             self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
-    #             self.state = 'Controls'
-    #         elif self.state == 'Controls':
-    #             self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
-    #             self.state = 'Volume'
-    #     elif self.game.UP_KEY:
-    #         if self.state == 'Controls':
-    #             self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
-    #             self.state = 'Volume'
-    #         elif self.state == 'Volume':
-    #             self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
-    #             self.state = 'Controls'
-
     def check_input(self):
         if self.game.BACK_KEY:
             self.game.curr_menu = self.game.main_menu
@@ -141,10 +143,9 @@ class OptionsMenu(Menu):
                 self.state = 'Volume'
                 self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
         elif self.game.START_KEY:
-            # TO-DO: Create a Volume Menu and a Controls 
-            #pass
-            self.game.curr_menu = self.game.controls
-
+            if self.state == 'Controls': 
+                self.game.curr_menu = self.game.controls
+        self.run_display = False
 class CreditsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
@@ -158,32 +159,91 @@ class CreditsMenu(Menu):
                 self.run_display = False
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
-            self.game.draw_text('Made by me', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Made by', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Judgy , ZeroChaos , Treebeard , DaB00m', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 40)
+            self.game.stars(self.game.DISPLAY_W,self.game.DISPLAY_H)
             self.blit_screen()
 
 class ControlsMenu(Menu):
     def __init__(self,game):
         Menu.__init__(self,game)
-        self.state = 'Controls'
+        self.state = 'Up'
         self.upx, self.upy = self.mid_w, self.mid_h + 20
         self.downx, self.downy = self.mid_w, self.mid_h + 40
         self.leftx, self.lefty = self.mid_w, self.mid_h + 60
         self.rightx, self.righty = self.mid_w, self.mid_h + 80
+        self.pfirex, self.pfirey = self.mid_w, self.mid_h + 100
+        self.sfirex, self.sfirey = self.mid_w, self.mid_h + 120
+        self.swapweapx, self.swapweapy = self.mid_w, self.mid_h + 140
+
         self.cursor_rect.midtop = (self.upx + self.offset, self.upy)
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
             self.game.check_events()
-            if self.game.START_KEY or self.game.BACK_KEY:
+            self.move_cursor()
+            if self.game.START_KEY:
+                print('Pressed Enter')
+            if self.game.BACK_KEY:
                 self.game.curr_menu = self.game.options
                 self.run_display = False
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Controls', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
-            self.game.draw_text('Up', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
-            self.game.draw_text('Down', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
-            self.game.draw_text('Left', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
-            self.game.draw_text('Right', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
-            self.game.draw_text('Primary Fire', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
-            self.game.draw_text('Alt Fire', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Up', 15, self.upx, self.upy)
+            self.game.draw_text('Down', 15, self.downx, self.downy)
+            self.game.draw_text('Left', 15, self.leftx, self.lefty)
+            self.game.draw_text('Right', 15, self.rightx, self.righty)
+            self.game.draw_text('Primary Fire', 15, self.pfirex, self.pfirey)
+            self.game.draw_text('Alt Fire', 15, self.sfirex, self.sfirey)
+            self.game.draw_text('Switch Weapon', 15, self.swapweapx, self.swapweapy)
+            self.draw_cursor()
             self.blit_screen()
+    
+    def move_cursor(self):
+        if self.game.DOWN_KEY:
+            #self.cursor_sound()
+            if self.state == 'Up':
+                self.cursor_rect.midtop = (self.downx + self.offset, self.downy)
+                self.state = 'Down'
+            elif self.state == 'Down':
+                self.cursor_rect.midtop = (self.leftx + self.offset, self.lefty)
+                self.state = 'Left'
+            elif self.state == 'Left':
+                self.cursor_rect.midtop = (self.rightx + self.offset, self.righty)
+                self.state = 'Right'
+            elif self.state == 'Right':
+                self.cursor_rect.midtop = (self.pfirex + self.offset, self.pfirey)
+                self.state = 'Primary Fire'
+            elif self.state == 'Primary Fire':
+                self.cursor_rect.midtop = (self.sfirex + self.offset, self.sfirey)
+                self.state = 'Alt Fire'
+            elif self.state == 'Alt Fire':
+                self.cursor_rect.midtop = (self.swapweapx + self.offset, self.swapweapy)
+                self.state = 'Switch Weapon'
+            elif self.state == 'Switch Weapon':
+                self.cursor_rect.midtop = (self.upx + self.offset, self.upy)
+                self.state = 'Up'
+        elif self.game.UP_KEY:
+            #self.cursor_sound()
+            if self.state == 'Up':
+                self.cursor_rect.midtop = (self.swapweapx + self.offset, self.swapweapy)
+                self.state = 'Switch Weapon'
+            elif self.state == 'Switch Weapon':
+                self.cursor_rect.midtop = (self.sfirex + self.offset, self.sfirey)
+                self.state = 'Alt Fire'
+            elif self.state == 'Alt Fire':
+                self.cursor_rect.midtop = (self.pfirex + self.offset, self.pfirey)
+                self.state = 'Primary Fire'
+            elif self.state == 'Primary Fire':
+                self.cursor_rect.midtop = (self.rightx + self.offset, self.righty)
+                self.state = 'Right'
+            elif self.state == 'Right':
+                self.cursor_rect.midtop = (self.leftx + self.offset, self.lefty)
+                self.state = 'Left'
+            elif self.state == 'Left':
+                self.cursor_rect.midtop = (self.downx + self.offset, self.downy)
+                self.state = 'Down'
+            elif self.state == 'Down':
+                self.cursor_rect.midtop = (self.upx + self.offset, self.upy)
+                self.state = 'Up'

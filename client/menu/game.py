@@ -1,35 +1,27 @@
-import pygame,os
+import pygame,os, sys
 import random
 from menu import *
-
-#define some commonly used colours
-WHITE = (255, 255, 255)
-LIGHTGREY = (192, 192, 192)
-DARKGREY = (128, 128, 128)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-MAGENTA = (255, 0, 255)
-CYAN = (0, 255, 255)
 
 class Game():
     def __init__(self):
         pygame.init()
+       # Music Init and Start
         pygame.mixer.init()
         BGM = pygame.mixer.Sound(os.path.join('Assets','sounds','01-The Prelude.mp3'))
         BGM.set_volume(1)
         BGM.play(-1)
+       # Game states
         self.running, self.playing = True, False
+
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-        self.DISPLAY_W, self.DISPLAY_H = 1280, 768
+        self.DISPLAY_W, self.DISPLAY_H = 1280, 1024
         self.display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)))
         self.font_name = os.path.join('client','menu','8-BIT WONDER.TTF')
        # self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.clock = pygame.time.Clock()
+       # Menus
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.controls = ControlsMenu(self)
@@ -43,7 +35,8 @@ class Game():
                 self.playing = False
             self.display.fill(self.BLACK)
             self.stars(self.DISPLAY_W,self.DISPLAY_H)
-            self.draw_text('Thanks for Playing', 20, self.DISPLAY_W/2, self.DISPLAY_H/2)
+            self.draw_text('Insert Awesome Game Here', 20, self.DISPLAY_W/2, self.DISPLAY_H/2)
+            #self.level.run()
             self.window.blit(self.display, (0,0))
             pygame.display.update()
             self.reset_keys()
@@ -63,7 +56,7 @@ class Game():
                     self.DOWN_KEY = True
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
-        self.clock.tick(30) 
+        self.clock.tick(60) / 1000
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
@@ -116,3 +109,7 @@ class Game():
                 star[0] = random.randrange(0, DISPLAY_W)
                 star[1] = random.randrange(-20, -5)
             pygame.draw.circle(self.display, CYAN, star, 1)
+    #redraw everything we've asked pygame to draw
+        pygame.display.flip()
+    #set frames per second
+        self.clock.tick(30)
