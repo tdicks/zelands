@@ -4,6 +4,7 @@ import math
 import os
 from Settings import TILESIZE
 from support import *
+from debug import debug as dbug
 
 display = pygame.display.set_mode((800,600))
 
@@ -15,28 +16,30 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group,obstacle_sprites):
         super().__init__(group)
         
-        self.import_assets()
+        #self.import_assets()
         self.status = 'down_idle'
         self.frame_index = 0
 
         # general setup
         self.image = pygame.image.load(os.path.join('assets','sprites', 'mario.png'))
+        self.image = pygame.transform.scale(self.image, (TILESIZE - self.image.get_width()/4,TILESIZE))
         self.rect = self.image.get_rect(center = pos)
+        self.hitbox = self.rect.inflate(0,0)
         self.obstacle_sprites = obstacle_sprites
 
         # movement attributes
 
 		# general setup
         #self.image = self.animations[self.status][self.frame_index]
-        self.rect = self.image.get_rect(center = pos)
+        #self.rect = self.image.get_rect(center = pos)
 
 		# movement attributes
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 300
+        self.speed = 2
 
     def import_assets(self):
-        # key pairs for all possible animations
+        #key pairs for all possible animations
         self.animations = {'up': [],'down': [],'left': [], 'right': [],'up_idle': [], 'down_idle': [],'left_idle': [], 'right_idle': []}
 
         for animation in self.animations.keys():
@@ -92,44 +95,42 @@ class Player(pygame.sprite.Sprite):
         
     def move(self,dt):
         # normalizing a vector to stop double movement speed while moving diagonally. Sorry Tim :(
-        if self.direction.magnitude() > 0:
+        if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
 
         # horizontal movement
-        self.pos.x += self.direction.x * self.speed * dt
+        self.hitbox.x += self.direction.x * self.speed
         self.collision('horizontal')
-        self.rect.centerx = self.pos.x
 
         # vertical movement
-        self.pos.y += self.direction.y * self.speed * dt
+        self.hitbox.y += self.direction.y * self.speed
         self.collision('vertical')
-        self.rect.centery = self.pos.y
+        self.rect.center = self.hitbox.center
 
     def collision(self, direction):
         if direction == 'horizontal':
             for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
+                if sprite.hitbox.colliderect(self.hitbox):
                     if self.direction.x > 0:  # moving right
-                        self.rect.right = sprite.rect.left
+                        self.hitbox.right = sprite.hitbox.left
                     if self.direction.x < 0:  # moving left
-                        self.rect.left = sprite.rect.right
+                        self.hitbox.left = sprite.hitbox.right
 
         if direction == 'vertical':
             for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
+                if sprite.hitbox.colliderect(self.hitbox):
                     if self.direction.y > 0:  # moving down
-                        self.rect.bottom = sprite.rect.top
+                        self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:  # moving up
-                        self.rect.top = sprite.rect.bottom
-
-        self.rect.centery = self.pos.y
+                        self.hitbox.top = sprite.hitbox.bottom
 
     def update(self, dt):
         self.input()
         self.pew()
         self.get_status()
         self.move(dt)
-        self.animate(dt)
+        #self.animate(dt)
+        
 
 # bullet creation
 class PlayerBullet:

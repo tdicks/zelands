@@ -1,6 +1,6 @@
 import random
 import time
-from tkinter import Grid
+from tkinter import EventType, Grid
 
 import pygame
 from Settings import *
@@ -8,9 +8,77 @@ from Tiles import *
 from player import Player
 import pygame.sprite
 import time
+from debug import debug as dbug
 
 clock = pygame.time.Clock()
 dt = clock.tick(60) / 1000
+
+tile_lib = {
+    'layout1': ['X2XX1',
+                'X0X67',
+                'X345X',
+                'XXX8X'],
+
+    'layout2': ['XX456',
+                'X23X7',
+                '01XX8',
+                'XXXXX'],
+                        
+    'layout3': ['XXXXX',
+                '3102X',
+                '6XX4X',
+                'XX857'],
+
+    'layout4': ['XXXXX',
+                'XX3X8',
+                'XX6X5',
+                '12074'],
+
+    'layout5': ['045XX',
+                'XX2XX',
+                'X67XX',
+                'XX183'],
+
+    'layout6': ['XX613',
+                'XXX8X',
+                'XX27X',
+                '045XX'],
+
+    'layout7': ['XXXXX',
+                '847X3',
+                '1X650',
+                'XXXX2'],
+
+    'layout8': ['XXXXX',
+                '047X3',
+                '1X658',
+                'XXXX2'],
+
+    'layout9': ['XX603',
+                'XXX1X',
+                'XX27X',
+                '845XX'],
+    
+    'layout10': ['64103',
+                 '5XXXX',
+                 '72XXX',
+                 '8XXXX'],
+
+    'layout11': ['XXX1X',
+                 'X234X',
+                 'X5X0X',
+                 '87X6X'],
+    
+    'layout12': ['XX63X',
+                 'XX1XX',
+                 'X2075',
+                 'XX4X8'],
+
+    'layout13': ['XX6XX',
+                 'X01XX',
+                 'XX375',
+                 'X24X8']
+                        }
 
 class Generator:
     def __init__(self):
@@ -43,12 +111,12 @@ class Generator:
         open_ground = []
         for r_index, row in enumerate(map_base):
             for col_index, text in enumerate(row):
-                if text == '__':
+                if text == '__' and r_index in range(2,grid-2) and col_index in range(2,grid-2):
                     open_ground.append((r_index,col_index))
         map_x,map_y = random.choice(open_ground)
         map_base[map_x][map_y] = 'P'
-        #for row in map_base: # prints map to console for debugging
-            #print(row)
+        for row in map_base: # prints map to console for debugging
+            print(row)
         return map_base
 
 class Level:
@@ -61,9 +129,10 @@ class Level:
             except (TypeError,ValueError):
                 print('Should be an interger')
         self.gridsize = 14
-        self.display_surface = pygame.display.get_surface()
-        self.visible_sprites = pygame.sprite.Group()
+        self.visible_sprites = SpritesByLayerCamera()
+        self.visible_floor_sprites = pygame.sprite.Group()
         self.obst_sprites = pygame.sprite.Group()
+
         # region Map_Creation
         self.map1 = Generator.map_generation(self.gridsize,random.randint(1,2345))
         self.map2 = Generator.map_generation(self.gridsize,random.randint(1,5324))
@@ -77,101 +146,144 @@ class Level:
         self.maps = [self.map1, self.map2, self.map3, self.map4,self.map5,
                     self.map6, self.map7, self.map8, self.map9]
         # endregion
-
         # region Base_X,Y for each room
         self.co_ord_list = []
-        for i in range(0,3):    
-            for j in range(0,3):
+        for i in range(0,4):    
+            for j in range(0,5):
                 co_ords = [TILESIZE * self.gridsize * i,TILESIZE * self.gridsize * j]
                 self.co_ord_list.append(co_ords)
+        self.room_coords = self.room_layout()
+
         # endregion
         self.dt = dt
         self.create_map()
         self.create_player()
 
+    def room_layout(self):
+        self.__layout_selection = random.choice(['layout1','layout2','layout3','layout4','layout5',
+                        'layout6','layout7','layout8','layout9','layout10','layout11','layout12','layout13'])
+        self.map_layout = tile_lib[self.__layout_selection]
+        self.layout_tuples = []
+        count = 0
+        for row in self.map_layout:
+            for room in row:
+                count += 1
+                if room == 'X':
+                    continue
+                else:
+                    x_origin = self.co_ord_list[count-1][0]
+                    y_origin = self.co_ord_list[count-1][1]
+                    self.layout_tuples.append((x_origin,y_origin))                
+        return self.layout_tuples
+        
+
     def run(self):
-        self.visible_sprites.draw(self.display_surface)
+        self.visible_floor_sprites.update()
+        self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update(self.dt)
 
     def create_map(self):
         count = 0
-        for map, origin in zip(self.maps,self.co_ord_list):
+        for map, origin in zip(self.maps,self.room_coords):
             count += 1
             x_origin = origin[0]
             y_origin = origin[1]
-            if random.randint(0,10) % 4 == 0 and count != 1:
-                continue
-            else:
-                for row_indx, row in enumerate(map):
-                    for col_indx, col in enumerate(row):
-                        x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
-                        y = y_origin + (row_indx * TILESIZE)
-                        # during the following 'if' statements the number follwing co-ordinates (x,y) is a rotation value
-                        # 0 = north , 1 = east, 2 = south, 3 = west
-                        if col == 'TW':
-                            if random.randint(1,20) % 13 == 0:
-                                Broken_Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
-                            else:
-                                Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
-                        if col == 'RW':
-                            if random.randint(1,20) % 13 == 0:
-                                Broken_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
-                            else:
-                                Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
-                        if col == 'BW':
-                            if random.randint(1,20) % 13 == 0:
-                                Broken_Wall((x,y), 2, [self.visible_sprites, self.obst_sprites])
-                            else:
-                                Wall((x,y), 2, [self.visible_sprites, self.obst_sprites])
-                        if col == 'LW':
-                            if random.randint(1,20) % 13 == 0:
-                                Broken_Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
-                            else:
-                                Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
-                        if col == '__' or col == 'P':
-                            Wood_Floor((x,y), [self.visible_sprites, self.obst_sprites]) # draw ground tile on open ground AND player spawn location
-                        if col == 'HW':
-                            Half_Wall((x,y), [self.visible_sprites, self.obst_sprites])
-                        if col == 'CWTL':
-                            Corner_Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
-                        if col == 'CWTR':
-                            Corner_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
-                        if col == 'CWBL':
-                            Corner_Wall((x,y), 2, [self.visible_sprites, self.obst_sprites]) 
-                        if col == 'CWBR':
-                            Corner_Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
-                        if col == 'TR':
-                            Treasure((x,y), [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
-                    for col_indx, col in enumerate(row):
-                        x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
-                        y = y_origin + (row_indx * TILESIZE)        
-                        if col == 'P':
-                            if x_origin == 0 and y_origin == 0:
-                                player_spawn = (x,y)
+            for row_indx, row in enumerate(map):
+                for col_indx, col in enumerate(row):
+                    x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
+                    y = y_origin + (row_indx * TILESIZE)
+                    # during the following 'if' statements the number follwing co-ordinates (x,y) is a rotation value
+                    # 0 = north , 1 = east, 2 = south, 3 = west
+                    if col == 'TW':
+                        if random.randint(1,20) % 13 == 0:
+                            Broken_Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
+                        else:
+                            Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
+                    if col == 'RW':
+                        if random.randint(1,20) % 13 == 0:
+                            Broken_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
+                        else:
+                            Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
+                    if col == 'BW':
+                        if random.randint(1,20) % 13 == 0:
+                            Broken_Wall((x,y), 2, [self.visible_sprites, self.obst_sprites])
+                        else:
+                            Wall((x,y), 2, [self.visible_sprites, self.obst_sprites])
+                    if col == 'LW':
+                        if random.randint(1,20) % 13 == 0:
+                            Broken_Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
+                        else:
+                            Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
+                    if col == '__' or col == 'P' or col == 'TR' or col == 'HW' :
+                        if random.randint(1,15) % 6 == 0:
+                            Future_Floor2((x,y), [self.visible_sprites]) # draw ground tile on open ground AND player spawn location
+                        else:
+                            Future_Floor1((x,y), [self.visible_sprites])
+                    if col == 'HW':
+                        Half_Wall((x,y), [self.visible_sprites, self.obst_sprites])
+                    if col == 'CWTL':
+                        Corner_Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
+                    if col == 'CWTR':
+                        Corner_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
+                    if col == 'CWBL':
+                        Corner_Wall((x,y), 2, [self.visible_sprites, self.obst_sprites]) 
+                    if col == 'CWBR':
+                        Corner_Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
+                    if col == 'TR':
+                        if random.randint(0,19) % 3 == 0:
+                            Treasure((x,y), [self.visible_sprites, self.obst_sprites])
+                        else:
+                            Tile((x,y), [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
+                for col_indx, col in enumerate(row):
+                    x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
+                    y = y_origin + (row_indx * TILESIZE)        
+                    if col == 'P':
+                            player_spawn = (x,y)
                     #
                 #
             #
         self.stored_spawn = Player(player_spawn, [self.visible_sprites], self.obst_sprites) # Player is a member of 'visible...' and only references 'obst...'
 
     def create_player(self):
+        self.player = self.stored_spawn
         self.stored_spawn
 
+def tile_filter(lst):
+    for item in lst:
+        if str(lst).find('floor'):
+            return True
+        else:
+            return False
 
-#class Level:
-#    def __init__(self):
-#
-        # get display surface
-#        self.display_surface = pygame.display.get_surface()
+class SpritesByLayerCamera(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+        self.display_surface = pygame.display.get_surface()
+        self.half_width = self.display_surface.get_size()[0] // 2
+        self.half_height = self.display_surface.get_size()[1] // 2
 
-        # sprite groups
-#        self.all_sprites = pygame.sprite.Group()
-    
-#        self.setup()
-    
-#    def setup(self):
-#        self.player = Player((400,300), self.all_sprites)
+        # Camera offset for tracking the player sprite
+        self.offset = pygame.math.Vector2(100,100)
 
-#   def run(self,dt):
-#        self.display_surface.fill('white')
-#        self.all_sprites.draw(self.display_surface)
-#        self.all_sprites.update(dt)
+        # Zoom function
+        self.zoomscale = 1
+        self.full_zoom_resolution = (2500,2500)
+        #self.surface_zoomed = pygame.surface(self.full_zoom_resolution, pygame.SRCALPHA)
+        #self.internal_rect = self.surface_zoomed.get_rect()
+
+    def custom_draw(self,player):
+        # generating camera offset to follow the player
+        self.offset.x = player.rect.centerx - self.half_width
+        self.offset.y = player.rect.centery - self.half_height
+        self.post_render = []
+        for sprite in self.sprites():
+            if "Floor" in str(sprite):
+                offset_position = sprite.rect.topleft - self.offset
+                self.display_surface.blit(sprite.image,offset_position)
+            else:
+                self.post_render.append(sprite) 
+        for sprite in sorted(self.post_render,key = lambda sprite: sprite.rect.bottom):
+            offset_position = sprite.rect.topleft - self.offset
+            self.display_surface.blit(sprite.image,offset_position)  
+
+level = Generator.map_generation()
