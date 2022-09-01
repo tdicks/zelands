@@ -29,7 +29,7 @@ class Menu():
     def blit_screen(self):
         self.game.window.blit(self.game.display, (0, 0))
         pygame.display.update()
-        self.game.reset_keys()
+        self.game.reset_keys()    
 class MainMenu(Menu):
     '''
     Class for main menu
@@ -161,7 +161,7 @@ class CreditsMenu(Menu):
             self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.draw_text('Made by', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
             self.game.draw_text('Judgy , ZeroChaos , Treebeard , DaB00m', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 40)
-            self.game.stars(self.game.DISPLAY_W,self.game.DISPLAY_H)
+            self.game.stars(self.game.DISPLAY_W,self.game.DISPLAY_H, self.game.star_field_slow,self.game.star_field_medium,self.game.star_field_fast)
             self.blit_screen()
 
 class ControlsMenu(Menu):

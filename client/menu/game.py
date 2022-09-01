@@ -28,13 +28,34 @@ class Game():
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
 
+        #create the locations of the stars for when we animate the background
+        self.star_field_slow = []
+        self.star_field_medium = []
+        self.star_field_fast = []
+
+        for slow_stars in range(50): #birth those plasma balls, baby
+            star_loc_x = random.randrange(0, self.DISPLAY_W)
+            star_loc_y = random.randrange(0, self.DISPLAY_H)
+            self.star_field_slow.append([star_loc_x, star_loc_y])
+
+        for medium_stars in range(35):
+            star_loc_x = random.randrange(0, self.DISPLAY_W)
+            star_loc_y = random.randrange(0, self.DISPLAY_H)
+            self.star_field_medium.append([star_loc_x, star_loc_y])
+
+        for fast_stars in range(15):
+            star_loc_x = random.randrange(0, self.DISPLAY_W)
+            star_loc_y = random.randrange(0, self.DISPLAY_H)
+            self.star_field_fast.append([star_loc_x, star_loc_y])
+        print(self.star_field_fast)
+
     def game_loop(self):
         while self.playing:
             self.check_events()
             if self.START_KEY:
                 self.playing = False
             self.display.fill(self.BLACK)
-            self.stars(self.DISPLAY_W,self.DISPLAY_H)
+            self.stars(self.DISPLAY_W,self.DISPLAY_H, self.star_field_slow,self.star_field_medium,self.star_field_fast)
             self.draw_text('Insert Awesome Game Here', 20, self.DISPLAY_W/2, self.DISPLAY_H/2)
             #self.level.run()
             self.window.blit(self.display, (0,0))
@@ -68,27 +89,7 @@ class Game():
         text_rect.center = (x,y)
         self.display.blit(text_surface,text_rect)
 
-    def stars(self,DISPLAY_W,DISPLAY_H):
-        #create the locations of the stars for when we animate the background
-        star_field_slow = []
-        star_field_medium = []
-        star_field_fast = []
-
-        for slow_stars in range(50): #birth those plasma balls, baby
-            star_loc_x = random.randrange(0, DISPLAY_W)
-            star_loc_y = random.randrange(0, DISPLAY_H)
-            star_field_slow.append([star_loc_x, star_loc_y])
-
-        for medium_stars in range(35):
-            star_loc_x = random.randrange(0, DISPLAY_W)
-            star_loc_y = random.randrange(0, DISPLAY_H)
-            star_field_medium.append([star_loc_x, star_loc_y])
-
-        for fast_stars in range(15):
-            star_loc_x = random.randrange(0, DISPLAY_W)
-            star_loc_y = random.randrange(0, DISPLAY_H)
-            star_field_fast.append([star_loc_x, star_loc_y])
-
+    def stars(self,DISPLAY_W,DISPLAY_H,star_field_slow, star_field_medium,star_field_fast):
         for star in star_field_slow:
             star[1] += 1
         if star[1] > DISPLAY_H:
