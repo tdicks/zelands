@@ -22,6 +22,7 @@ class Game():
         self.font_name = os.path.join('client','menu','8-BIT WONDER.TTF')
        # self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
+        self.FPS = '60'
         self.clock = pygame.time.Clock()
        # Menus
         self.splash = SplashScreen(self)
@@ -58,6 +59,12 @@ class Game():
         self.BGM.set_volume(1)
         self.BGM.play(-1)
 
+    def fps_counter(self):
+        self.font = pygame.font.Font(self.font_name,20)
+        self.fps = str(int(self.clock.get_fps()))
+        self.fps_t = self.font.render(self.fps , 1, pygame.Color('GREEN'))
+        self.window.blit(self.fps_t,(0,0)) 
+
     def game_loop(self):
         while self.playing:
             self.check_events()
@@ -69,8 +76,11 @@ class Game():
             #self.level.run()
             #self.window.blit(self.display, (0,0))
             self.window.blit(pygame.transform.scale(self.display, self.window.get_rect().size), (0,0))
+            self.fps_counter()
+            self.clock.tick(60) / 1000
             pygame.display.update()
             self.reset_keys()
+
 
 
     def check_events(self):
@@ -98,7 +108,7 @@ class Game():
                     else:
                         self.window = pygame.display.set_mode((self.display.get_width(),self.display.get_height()),pygame.RESIZABLE)
                         os.environ['SDL_VIDEO_CENTERED'] = '1'
-        self.clock.tick(60) / 1000
+        
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.F11_KEY = False, False, False, False, False

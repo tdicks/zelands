@@ -30,7 +30,7 @@ class Menu():
         self.game.window.blit(pygame.transform.scale(self.game.display, self.game.window.get_rect().size), (0,0))
         #self.game.window.blit(self.game.display, (0, 0))
         pygame.display.update()
-        self.game.reset_keys()    
+        self.game.reset_keys()  
 
 class SplashScreen(Menu):
     def __init__(self, game):
