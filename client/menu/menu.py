@@ -1,5 +1,6 @@
 import pygame,os,time
 from menu_support import *
+from game import *
 
 #define some commonly used colours
 WHITE = (255, 255, 255)
@@ -21,7 +22,7 @@ class Menu():
         self.image = pygame.image.load(os.path.join('assets','sprites', 'menu_selector.png'))
         #self.rect = self.image.get_rect(center = pos)
         self.cursor_rect = pygame.Rect(0, 0, 20, 20)
-        self.offset = - 100
+        self.offset = - 150
 
     def draw_cursor(self):
         self.game.draw_text('*', 20, self.cursor_rect.x, self.cursor_rect.y)
@@ -51,6 +52,7 @@ class SplashScreen(Menu):
     def check_input(self):
             if self.state == 'Start':
                 self.game.curr_menu = self.game.main_menu
+                self.game.start_bgm()
                 self.run_display = False
 
 class MainMenu(Menu):
@@ -72,6 +74,7 @@ class MainMenu(Menu):
         '''
         self.run_display = True
         while self.run_display:
+            # Starts background Music
             self.game.check_events()
             self.check_input()
             self.game.display.fill(self.game.BLACK)
@@ -86,7 +89,7 @@ class MainMenu(Menu):
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
-            self.cursor_sound()
+            #self.cursor_sound()
             if self.state == 'Start':
                 self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
                 self.state = 'Options'
@@ -100,7 +103,7 @@ class MainMenu(Menu):
                 self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
                 self.state = 'Start'
         elif self.game.UP_KEY:
-            self.cursor_sound()
+            #self.cursor_sound()
             if self.state == 'Start':
                 self.cursor_rect.midtop = (self.exitx + self.offset, self.exity)
                 self.state = 'Exit'
@@ -129,18 +132,18 @@ class MainMenu(Menu):
             self.run_display = False
     
     def cursor_sound(self):
-        CURSOR = pygame.mixer.Sound(os.path.join('Assets','sounds','cursor_change.mp3'))
-        CURSOR.set_volume(10)
-        CURSOR.play(1)
+        SFX = pygame.mixer.Sound(os.path.join('Assets','sounds','Gun+Silencer.mp3'))
+        SFX.set_volume(self.game.SFX_VOLUME)
+        SFX.play(1)
         
 
 class OptionsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.state = 'Volume'
-        self.volx, self.voly = self.mid_w, self.mid_h + 20
+        self.state = 'Sound'
+        self.soundx, self.soundy = self.mid_w, self.mid_h + 20
         self.controlsx, self.controlsy = self.mid_w, self.mid_h + 40
-        self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
+        self.cursor_rect.midtop = (self.soundx + self.offset, self.soundy)
 
     def display_menu(self):
         self.run_display = True
@@ -149,7 +152,7 @@ class OptionsMenu(Menu):
             self.check_input()
             self.game.display.fill((0, 0, 0))
             self.game.draw_text('Options', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
-            self.game.draw_text("Volume", 15, self.volx, self.voly)
+            self.game.draw_text("Sound", 15, self.soundx, self.soundy)
             self.game.draw_text("Controls", 15, self.controlsx, self.controlsy)
             self.draw_cursor()
             self.blit_screen()
@@ -159,13 +162,15 @@ class OptionsMenu(Menu):
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
         elif self.game.UP_KEY or self.game.DOWN_KEY:
-            if self.state == 'Volume':
+            if self.state == 'Sound':
                 self.state = 'Controls'
                 self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
             elif self.state == 'Controls':
-                self.state = 'Volume'
-                self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
+                self.state = 'Sound'
+                self.cursor_rect.midtop = (self.soundx + self.offset, self.soundy)
         elif self.game.START_KEY:
+            if self.state == 'Sound': 
+                self.game.curr_menu = self.game.volume
             if self.state == 'Controls': 
                 self.game.curr_menu = self.game.controls
         self.run_display = False
@@ -175,17 +180,108 @@ class CreditsMenu(Menu):
 
     def display_menu(self):
         self.run_display = True
+        pygame.mixer.pause()
+        CREDITS = pygame.mixer.Sound(os.path.join('Assets','sounds','credits.mp3'))
+        CREDITS.set_volume(1)
+        CREDITS.play()
         while self.run_display:
             self.game.check_events()
             if self.game.START_KEY or self.game.BACK_KEY:
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
+                self.game.BGM.play()
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.draw_text('Made by', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
             self.game.draw_text('Judgy , ZeroChaos , Treebeard , DaB00m', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 40)
             self.game.stars(self.game.DISPLAY_W,self.game.DISPLAY_H, self.game.star_field_slow,self.game.star_field_medium,self.game.star_field_fast)
             self.blit_screen()
+
+
+class SoundMenu(Menu):
+    def __init__(self,game):
+        Menu.__init__(self,game)
+        self.state = 'bgm'
+        self.bgmx, self.bgmy = self.mid_w, self.mid_h + 20
+        self.sfxx, self.sfxy = self.mid_w, self.mid_h + 40
+        self.mutex, self.mutey = self.mid_w, self.mid_h + 60
+        self.cursor_rect.midtop = (self.bgmx + self.offset, self.bgmy)
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.move_cursor()
+            if self.game.START_KEY:
+                print('Pressed Enter')
+            if self.game.BACK_KEY:
+                self.game.curr_menu = self.game.options
+                self.run_display = False
+            self.game.display.fill(self.game.BLACK)
+            self.game.draw_text('Sound Options', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
+            self.game.draw_text('Music Volume : ' + str(round(self.game.BGM_VOLUME,1)), 15, self.bgmx, self.bgmy)
+            self.game.draw_text('SFX Volume : ' + str(round(self.game.SFX_VOLUME,1)), 15, self.sfxx, self.sfxy)
+            self.game.draw_text('Mute All', 15, self.mutex, self.mutey)
+            self.draw_cursor()
+            self.blit_screen()
+
+    def move_cursor(self):
+        #print(self.state)
+        if self.game.DOWN_KEY:
+            #self.cursor_sound()
+            if self.state == 'bgm':
+                self.cursor_rect.midtop = (self.sfxx + self.offset, self.sfxy)
+                self.state = 'sfx'
+            elif self.state == 'sfx':
+                self.cursor_rect.midtop = (self.mutex + self.offset, self.mutey)
+                self.state = 'mute'
+            elif self.state == 'mute':
+                self.cursor_rect.midtop = (self.bgmx + self.offset, self.bgmy)
+                self.state = 'bgm'
+
+        elif self.game.UP_KEY:
+            #self.cursor_sound()
+            if self.state == 'bgm':
+                self.cursor_rect.midtop = (self.mutex + self.offset, self.mutey)
+                self.state = 'mute'
+            elif self.state == 'mute':
+                self.cursor_rect.midtop = (self.sfxx + self.offset, self.sfxy)
+                self.state = 'sfx'
+            elif self.state == 'sfx':
+                self.cursor_rect.midtop = (self.bgmx + self.offset, self.bgmy)
+                self.state = 'bgm'
+
+        elif self.game.LEFT_KEY:
+            if self.state == 'bgm':
+                if self.game.BGM_VOLUME > 0: 
+                    self.game.BGM_VOLUME -= 0.1
+                    self.game.BGM.set_volume(self.game.BGM_VOLUME)
+                    print(str(self.game.BGM_VOLUME))
+            if self.state == 'sfx':
+                if self.game.SFX_VOLUME > 0:
+                    self.game.SFX_VOLUME -= 0.1
+                    self.game.SOUND_SELECT.set_volume(self.game.SFX_VOLUME)
+                    self.game.SOUND_CURSOR.set_volume(self.game.SFX_VOLUME)
+                    print(round(self.game.SFX_VOLUME),1)
+                
+        elif self.game.RIGHT_KEY:
+            if self.state == 'bgm':
+                if self.game.BGM_VOLUME < 1:
+                    self.game.BGM_VOLUME += 0.1
+                    self.game.BGM.set_volume(self.game.BGM_VOLUME)
+                    print(str(self.game.BGM_VOLUME))
+            if self.state == 'sfx':
+                if self.game.SFX_VOLUME < 1:
+                    self.game.SFX_VOLUME += 0.1
+                    self.game.SOUND_SELECT.set_volume(self.game.SFX_VOLUME)
+                    self.game.SOUND_CURSOR.set_volume(self.game.SFX_VOLUME)
+                    print(round(self.game.SFX_VOLUME),1)
+        
+        elif self.game.START_KEY:
+            pass
+
+
+
 
 class ControlsMenu(Menu):
     def __init__(self,game):
@@ -213,16 +309,16 @@ class ControlsMenu(Menu):
                 self.run_display = False
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Controls', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
-            self.game.draw_text('Up', 15, self.upx, self.upy)
-            self.game.draw_text('Down', 15, self.downx, self.downy)
-            self.game.draw_text('Left', 15, self.leftx, self.lefty)
-            self.game.draw_text('Right', 15, self.rightx, self.righty)
-            self.game.draw_text('Primary Fire', 15, self.pfirex, self.pfirey)
-            self.game.draw_text('Alt Fire', 15, self.sfirex, self.sfirey)
-            self.game.draw_text('Switch Weapon', 15, self.swapweapx, self.swapweapy)
+            self.game.draw_text('Up :' + self.game.config['controls']['up'].split('_')[1], 15, self.upx, self.upy)
+            self.game.draw_text('Down : ' + self.game.config['controls']['down'].split('_')[1], 15, self.downx, self.downy)
+            self.game.draw_text('Left : ' + self.game.config['controls']['left'].split('_')[1], 15, self.leftx, self.lefty)
+            self.game.draw_text('Right : ' + self.game.config['controls']['right'].split('_')[1], 15, self.rightx, self.righty)
+            self.game.draw_text('Primary Fire : ', 15, self.pfirex, self.pfirey)
+            self.game.draw_text('Alt Fire : ', 15, self.sfirex, self.sfirey)
+            self.game.draw_text('Switch Weapon : ', 15, self.swapweapx, self.swapweapy)
             self.draw_cursor()
             self.blit_screen()
-    
+
     def move_cursor(self):
         if self.game.DOWN_KEY:
             #self.cursor_sound()
