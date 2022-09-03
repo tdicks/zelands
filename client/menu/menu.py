@@ -1,5 +1,5 @@
-import pygame,os
-import random
+import pygame,os,time
+from menu_support import *
 
 #define some commonly used colours
 WHITE = (255, 255, 255)
@@ -27,9 +27,32 @@ class Menu():
         self.game.draw_text('*', 20, self.cursor_rect.x, self.cursor_rect.y)
 
     def blit_screen(self):
-        self.game.window.blit(self.game.display, (0, 0))
+        self.game.window.blit(pygame.transform.scale(self.game.display, self.game.window.get_rect().size), (0,0))
+        #self.game.window.blit(self.game.display, (0, 0))
         pygame.display.update()
         self.game.reset_keys()    
+
+class SplashScreen(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+        self.state = "Splash"
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.game.display.fill(self.game.BLACK)
+            self.game.draw_text('Loading...', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            self.blit_screen()
+            time.sleep(5)
+            self.state = 'Start'
+            self.check_input()
+
+    def check_input(self):
+            if self.state == 'Start':
+                self.game.curr_menu = self.game.main_menu
+                self.run_display = False
+
 class MainMenu(Menu):
     '''
     Class for main menu

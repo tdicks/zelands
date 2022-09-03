@@ -2,31 +2,35 @@ import pygame,os, sys
 import random
 from menu import *
 
+from pygame.locals import *
+
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 class Game():
     def __init__(self):
         pygame.init()
        # Music Init and Start
-        pygame.mixer.init()
-        BGM = pygame.mixer.Sound(os.path.join('Assets','sounds','01-The Prelude.mp3'))
-        BGM.set_volume(1)
-        BGM.play(-1)
+        pygame.mixer.init(44100, -16, 2, 2048)
+        self.start_bgm()
        # Game states
         self.running, self.playing = True, False
-
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
+        self.fullscreen = False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.F11_KEY = False, False, False, False, False
         self.DISPLAY_W, self.DISPLAY_H = 1280, 1024
+        self.monitor_size = [pygame.display.Info().current_w,pygame.display.Info().current_h]
         self.display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
-        self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)))
+        self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)),pygame.RESIZABLE)
         self.font_name = os.path.join('client','menu','8-BIT WONDER.TTF')
        # self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.clock = pygame.time.Clock()
        # Menus
+        self.splash = SplashScreen(self)
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.controls = ControlsMenu(self)
         self.credits = CreditsMenu(self)
-        self.curr_menu = self.main_menu
+        #self.curr_menu = self.main_menu
+        self.curr_menu = self.splash
 
         #create the locations of the stars for when we animate the background
         self.star_field_slow = []
@@ -48,6 +52,11 @@ class Game():
             star_loc_y = random.randrange(0, self.DISPLAY_H)
             self.star_field_fast.append([star_loc_x, star_loc_y])
         print(self.star_field_fast)
+    
+    def start_bgm(self):
+        self.BGM = pygame.mixer.Sound(os.path.join('Assets','sounds','01-The Prelude.mp3'))
+        self.BGM.set_volume(1)
+        self.BGM.play(-1)
 
     def game_loop(self):
         while self.playing:
@@ -58,7 +67,8 @@ class Game():
             self.stars(self.DISPLAY_W,self.DISPLAY_H, self.star_field_slow,self.star_field_medium,self.star_field_fast)
             self.draw_text('Insert Awesome Game Here', 20, self.DISPLAY_W/2, self.DISPLAY_H/2)
             #self.level.run()
-            self.window.blit(self.display, (0,0))
+            #self.window.blit(self.display, (0,0))
+            self.window.blit(pygame.transform.scale(self.display, self.window.get_rect().size), (0,0))
             pygame.display.update()
             self.reset_keys()
 
@@ -68,6 +78,10 @@ class Game():
             if event.type == pygame.QUIT:
                 self.running, self.playing = False, False
                 self.curr_menu.run_display = False
+            if event.type == pygame.VIDEORESIZE:
+                if not self.fullscreen:
+                    SCREEN_WIDTH, SCREEN_HEIGHT = event.size
+                    self.window = pygame.display.set_mode(((SCREEN_WIDTH,SCREEN_HEIGHT)),pygame.RESIZABLE)   
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.START_KEY = True
@@ -77,10 +91,17 @@ class Game():
                     self.DOWN_KEY = True
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
+                if event.key == pygame.K_F11:
+                    self.fullscreen = not self.fullscreen
+                    if self.fullscreen:
+                        self.window = pygame.display.set_mode((self.monitor_size),pygame.FULLSCREEN)
+                    else:
+                        self.window = pygame.display.set_mode((self.display.get_width(),self.display.get_height()),pygame.RESIZABLE)
+                        os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.clock.tick(60) / 1000
 
     def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.F11_KEY = False, False, False, False, False
 
     def draw_text(self, text, size, x, y ):
         font = pygame.font.Font(self.font_name,size)
