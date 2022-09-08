@@ -7,6 +7,7 @@ class Tile(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = pygame.image.load(os.path.join('assets','sprites','caves_env','objects','pillar_64_192.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image,(TILESIZE,TILESIZE*3))
+        #self.image = pygame.image.load(os.path.join('assets','sprites','rocksprite.png')).convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(0, -self.image.get_height()/2)
 

@@ -285,5 +285,32 @@ class SpritesByLayerCamera(pygame.sprite.Group):
         for sprite in sorted(self.post_render,key = lambda sprite: sprite.rect.bottom):
             offset_position = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image,offset_position)  
+        for row_indx, row in enumerate(self.map):
+            for col_indx, col in enumerate(row):
+                x = col_indx * TILESIZE # TILESIZE is stored in Settings.py
+                y = row_indx * TILESIZE
+                if col == 'X':
+                    Tile((x,y), [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
+            for col_indx, col in enumerate(row):
+                x = col_indx * TILESIZE # TILESIZE is stored in Settings.py
+                y = row_indx * TILESIZE        
+                if col == 'P':
+                    print(f'x: {x}    y: {y}')
+                    Player((x,y), [self.visible_sprites], self.obst_sprites) # Player is a member of 'visible...' and only references 'obst...'
+        BGM.set_volume(-4)
+        BGM.play(-1)
+#class Level:
+#    def __init__(self):
+#
+        # get display surface
+#        self.display_surface = pygame.display.get_surface()
+
+        # sprite groups
+#        self.all_sprites = pygame.sprite.Group()
+    
+#        self.setup()
+    
+#    def setup(self):
+#        self.player = Player((400,300), self.all_sprites)
 
 level = Generator.map_generation()

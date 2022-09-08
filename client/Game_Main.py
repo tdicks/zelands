@@ -12,6 +12,7 @@ class Game:
         pygame.display.set_caption('ZeLaNDS')
         self.clock = pygame.time.Clock()
         self.level = Level(self.clock.tick(60)/1000)
+        self.font_name = '/assets/8-BIT WONDER.TTF'
 
 
     def run(self):
