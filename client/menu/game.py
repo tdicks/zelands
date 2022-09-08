@@ -31,8 +31,8 @@ class Game():
         self.clock = pygame.time.Clock()
 
        # Sound
-        self.SOUND_CURSOR = pygame.mixer.Sound(os.path.join('Assets','sounds','Gun+Silencer.mp3'))
-        self.SOUND_SELECT = pygame.mixer.Sound(os.path.join('Assets','sounds','select.wav'))
+        self.SOUND_CURSOR = pygame.mixer.Sound(os.path.join('assets','assets','sounds','GunSilencer.mp3'))
+        self.SOUND_SELECT = pygame.mixer.Sound(os.path.join('assets','sounds','select.wav'))
         self.SFX_VOLUME = 0.5
         self.BGM_VOLUME = 0.5
         self.get_config()
@@ -74,7 +74,7 @@ class Game():
     
     def start_bgm(self):
         #self.BGM = pygame.mixer.Sound(os.path.join('Assets','sounds','01-The Prelude.mp3'))
-        self.BGM = pygame.mixer.Sound(os.path.join('Assets','sounds','NewGame.mp3'))
+        self.BGM = pygame.mixer.Sound(os.path.join('assets','sounds','NewGame.mp3'))
         self.BGM.set_volume(self.BGM_VOLUME)
         self.BGM.play(-1)
 

@@ -1,6 +1,7 @@
 import random
 import time
 from tkinter import EventType, Grid
+import items 
 
 import pygame
 from Settings import *
@@ -183,6 +184,7 @@ class Level:
         self.visible_sprites.update(self.dt)
 
     def create_map(self):
+        guns = []
         count = 0
         for map, origin in zip(self.maps,self.room_coords):
             count += 1
@@ -233,7 +235,9 @@ class Level:
                         if random.randint(0,19) % 3 == 0:
                             Treasure((x,y), [self.visible_sprites, self.obst_sprites])
                         else:
-                            Tile((x,y), [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
+                            gun = items.SMG()
+                            guns.append(gun)
+                            SMG((x,y), gun.weapon_rarity, [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
                 for col_indx, col in enumerate(row):
                     x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
                     y = y_origin + (row_indx * TILESIZE)        
@@ -285,32 +289,4 @@ class SpritesByLayerCamera(pygame.sprite.Group):
         for sprite in sorted(self.post_render,key = lambda sprite: sprite.rect.bottom):
             offset_position = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image,offset_position)  
-        for row_indx, row in enumerate(self.map):
-            for col_indx, col in enumerate(row):
-                x = col_indx * TILESIZE # TILESIZE is stored in Settings.py
-                y = row_indx * TILESIZE
-                if col == 'X':
-                    Tile((x,y), [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
-            for col_indx, col in enumerate(row):
-                x = col_indx * TILESIZE # TILESIZE is stored in Settings.py
-                y = row_indx * TILESIZE        
-                if col == 'P':
-                    print(f'x: {x}    y: {y}')
-                    Player((x,y), [self.visible_sprites], self.obst_sprites) # Player is a member of 'visible...' and only references 'obst...'
-        BGM.set_volume(-4)
-        BGM.play(-1)
-#class Level:
-#    def __init__(self):
-#
-        # get display surface
-#        self.display_surface = pygame.display.get_surface()
 
-        # sprite groups
-#        self.all_sprites = pygame.sprite.Group()
-    
-#        self.setup()
-    
-#    def setup(self):
-#        self.player = Player((400,300), self.all_sprites)
-
-level = Generator.map_generation()
