@@ -13,7 +13,7 @@ body_mods = {
     'DaBoom': {
         'fire_rate': -1.2,
         'damage': 4,
-        'reload_time': 0.3 # addition from RL time 
+        'reload_time': 0.3 # addition to ReLoad time 
         },
     'Dickshot': {
         'fire_rate': -2.2,
@@ -22,12 +22,95 @@ body_mods = {
         },
     'Elidia': {
         'fire_rate': 1,
-        'reload_time': -0.2 # subtraction from RL time
+        'reload_time': -0.2 # subtraction to Reload time
         },
     'Judicium': {
         'fire_rate': -1.2,
         'damage': 2,
-        'Critical_hit': 1.5 # multiplier
+        'Critical_hit': 0.5 # multiplier
+        }
+    }
+
+barrel_mods = {
+    'DaBoom': {
+        'accuracy': -2.5, # %
+        'damage': 1.1,
+        'pellet_speed': -2, # big bullets go slow
+        'barrel_count' : 2 
+        },
+    'Dickshot': {
+        'accuracy': -1, # %
+        'damage': 1.4,
+        'pellet_speed': -4, # big bullets go slow
+        'barrel_count' : 1
+        },
+    'Elidia': {
+        'accuracy': +5, # %
+        'pellet_speed': +3,
+        'barrel_count' : 4 # subtraction from RL time
+        },
+    'Judicium': {
+        'accuracy': +2.5, # %
+        'pellet_speed': +5,
+        'critical_hit': 0.2, # multiplier
+        'barrel_count': 3
+        }
+    }
+
+sight_mods = {
+    'DaBoom': {
+        'accuracy': +2.5, # %
+        },
+
+    'Dickshot': {
+        'accuracy': +1.5, # %
+        },
+
+    'Elidia': {
+        'accuracy': +10, # %
+        },
+    'Judicium': {
+        'accuracy': +5, # %
+        }
+    }
+
+grip_mods = {
+    'DaBoom' : {
+        'fire_rate': +1.1 
+        },
+
+    'Dickshot': {
+        'fire_rate': +0.8, # %
+        },
+
+    'Elidia': {
+        'fire_rate': +3, # %
+        },
+    'Judicium': {
+        'fire_rate': +1.5, # %
+        'critical_hit': 0.1
+        }
+    }
+
+clip_mods = {
+    'DaBoom' : {
+        'reload_time': +0.2,
+        'total_ammo' : +10
+        },
+
+    'Dickshot': {
+        'reload_time': +0.4, # %
+        'total_ammo': -5
+        },
+
+    'Elidia': {
+        'reload_time': -0.3, # %
+        'total_ammo': +14
+        },
+
+    'Judicium': {
+        'reload_time': -0.1, # %
+        'total_ammo': +5
         }
     }
 
@@ -102,9 +185,10 @@ class SMG:
 
 #generates 10 weapons to check for stat changes on weapons with the same levels but different rarities 
 # (no part based stat modifiers yet)
-for x in range(10):
+for x in range(1):
     smg1 = SMG()
 
+print(smg1.weapon_rarity)
 # checking the accessibilty of libraries inside libraries
 #print()
 #print()
@@ -112,3 +196,24 @@ for x in range(10):
 #print('___________________________')
 #print('DaBoom manufacturer fire rate modifier =  ', body_mods['DaBoom']['fire_rate'])
 
+
+"""
+critical hit formula = (BaseDamage x 2) x (1 + critcal_bonuses)
+weapon level bonuses are calculated as part of the BaseDamage (pre-add)
+critical_bonuses calculated from weapon parts and character bonuses (post add)
+
+eg: a lvl 5 Judicium Sniper (base damage of 10) with Judicium Barrel and Grip:
+10 x 1.25 per level (compounded)
+(1.25 x (1.25 x (1.25 x (1.25 x (1.25 x 10))))) = 30.51 (30 BaseDamage [rounded down using !math.floor])
+
+30 x 2 x (1 + 0.5 + 0.2 + 0.1) = critcal hit of 108 (around 3.5x BaseDamage)
+
+the "1" is always used in the post-add to keep bonuses positive otherwise multiplying by 0.x would decrease damage
+and if there are no additional bonuses from parts, the damage is multiplied by 1 (no change)
+
+¿how do we trigger critical hits?
+ - purely random chance !random.randint(1,40) % 9 == 0:
+ - character stat (certain classes have a inherantly higher chance/percentage)
+ - weapon stat (possibly more likely with snipers/pistols. less likely with rockets and quick-fire weapons)
+ - based off enemy stat (crit damage chance as a percentage !if random.randint(1,100) in Range(1,20): [20% chance]  )
+"""  

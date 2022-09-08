@@ -1,6 +1,7 @@
 import random
 import time
 from tkinter import EventType, Grid
+import items 
 
 import pygame
 from Settings import *
@@ -183,6 +184,7 @@ class Level:
         self.visible_sprites.update(self.dt)
 
     def create_map(self):
+        guns = []
         count = 0
         for map, origin in zip(self.maps,self.room_coords):
             count += 1
@@ -233,7 +235,9 @@ class Level:
                         if random.randint(0,19) % 3 == 0:
                             Treasure((x,y), [self.visible_sprites, self.obst_sprites])
                         else:
-                            Tile((x,y), [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
+                            gun = items.SMG()
+                            guns.append(gun)
+                            SMG((x,y), gun.weapon_rarity, [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
                 for col_indx, col in enumerate(row):
                     x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
                     y = y_origin + (row_indx * TILESIZE)        
