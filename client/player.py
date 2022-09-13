@@ -1,16 +1,18 @@
+#from curses.ascii import SP
 from turtle import speed, width
 import pygame
 import math
 import os
 from Settings import TILESIZE
+from Tiles import *
+from shared_functions import load_player
 from support import *
-from debug import debug as dbug
+from debug import debug as db
 
 display = pygame.display.set_mode((800,600))
 
 # create bullet list
 player_bullets = []
-
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group,obstacle_sprites):
@@ -21,10 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
 
         # general setup
-        self.image = pygame.image.load(os.path.join('assets','sprites', 'mario.png'))
-        self.image = pygame.transform.scale(self.image, (TILESIZE - self.image.get_width()/4,TILESIZE))
-        self.rect = self.image.get_rect(center = pos)
-        self.hitbox = self.rect.inflate(0,0)
+        self.image, self.rect, self.hitbox = load_player(['assets','sprites','mario.png'], pos)
         self.obstacle_sprites = obstacle_sprites
 
         # movement attributes
@@ -36,7 +35,7 @@ class Player(pygame.sprite.Sprite):
 		# movement attributes
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 2
+        self.speed = 4
 
     def import_assets(self):
         #key pairs for all possible animations
@@ -73,6 +72,8 @@ class Player(pygame.sprite.Sprite):
             self.status = 'right'
         else:
             self.direction.x = 0
+        
+        self.facing = self.status
 
         # Only needed to check direction of player in terminal
         # print(self.direction)
@@ -92,7 +93,17 @@ class Player(pygame.sprite.Sprite):
         # checks if player is in a state of movement if its not it appends the status with _idle 
         if self.direction.magnitude() == 0:
             self.status = self.status.split('_')[0] + '_idle'
-        
+
+    def true_mouse_location(self):
+        """finds the mouse location in the world based 
+        off of the player location and mouse location 
+        within the screen"""
+        self.plyr_x, self.plyr_y = self.rect.center
+        self.mouse_x, self.mouse_y = pygame.mouse.get_pos()
+        self.true_mouse_x = (self.plyr_x - (display.get_width() / 2)) + self.mouse_x
+        self.true_mouse_y = (self.plyr_y - (display.get_height() / 2)) + self.mouse_y
+        return self.true_mouse_x, self.true_mouse_y
+
     def move(self,dt):
         # normalizing a vector to stop double movement speed while moving diagonally. Sorry Tim :(
         if self.direction.magnitude() != 0:
@@ -107,6 +118,28 @@ class Player(pygame.sprite.Sprite):
         self.collision('vertical')
         self.rect.center = self.hitbox.center
 
+        self.item_info_range()
+
+
+    def spriteinfo(self, sprite):
+        self.true_mouse_x, self.true_mouse_y = self.true_mouse_location()
+        if self.hitbox.colliderect(sprite.info_range) and sprite.rect.collidepoint(self.true_mouse_x,self.true_mouse_y): 
+            for i,detail in enumerate(sprite.gun_details):
+                x = 10
+                y = 10 + 22 * i
+                db(detail,x,y)
+        
+        #self.true_mouse_x, self.true_mouse_y = self.true_mouse_location()
+        #if sprite.rect.collidepoint(self.true_mouse_x,self.true_mouse_y):
+            #print('inside the tile')
+
+
+    def item_info_range(self):
+        for sprite in self.obstacle_sprites:
+            if isinstance(sprite, SMG_Tile):
+                                self.spriteinfo(sprite)
+ 
+
     def collision(self, direction):
         if direction == 'horizontal':
             for sprite in self.obstacle_sprites:
@@ -117,18 +150,21 @@ class Player(pygame.sprite.Sprite):
                         self.hitbox.left = sprite.hitbox.right
 
         if direction == 'vertical':
+            count = 0
             for sprite in self.obstacle_sprites:
                 if sprite.hitbox.colliderect(self.hitbox):
                     if self.direction.y > 0:  # moving down
                         self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:  # moving up
                         self.hitbox.top = sprite.hitbox.bottom
-
+        
+    
     def update(self, dt):
         self.input()
         self.pew()
         self.get_status()
         self.move(dt)
+        self.true_mouse_location()
         #self.animate(dt)
         
 
