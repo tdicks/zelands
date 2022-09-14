@@ -124,7 +124,7 @@ class Player(pygame.sprite.Sprite):
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    player_bullets.append(PlayerBullet(self.rect.center[0], self.rect.center[1], mouse_x, mouse_y))
+                    player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
 
         for bullet in player_bullets:
             bullet.main(display)
