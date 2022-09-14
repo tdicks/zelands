@@ -5,7 +5,7 @@ import math
 import os
 from Settings import TILESIZE
 from Tiles import *
-from shared_functions import load_player
+from shared_functions import load_player, floating_text
 from support import *
 from debug import debug as db
 
@@ -25,6 +25,7 @@ class Player(pygame.sprite.Sprite):
         # general setup
         self.image, self.rect, self.hitbox = load_player(['assets','sprites','mario.png'], pos)
         self.obstacle_sprites = obstacle_sprites
+        self.weapon_load_count = 0
 
         # movement attributes
 
@@ -36,6 +37,46 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 4
+
+    def inventory(self):
+        self.slot1 = {
+            'Weapon Level': 2,
+            'Weapon Type': 'SMG',
+            'Weapon Rarity': 'purple',
+            'Weapon Manufacturer': 'Judicium',
+            'Damage': 16,
+            'Accuracy': 65,
+            'Clip Size': 54,
+            'Reload': 0.6,
+            'Ammo Capacity': 647
+            }
+        self.slot2 = {
+            'Weapon Level': 1,
+            'Weapon Type': 0,
+            'Weapon Rarity': 0,
+            'Weapon Manufacturer': 0,
+            'Damage': 0,
+            'Accuracy': 0,
+            'Clip Size': 0,
+            'Reload': 0,
+            'Ammo Capacity': 0
+            }
+        while self.weapon_load_count < 1:
+            self.held_weapon = self.slot1.items()
+            self.weapon_load_count += 1
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_1]:
+            if self.slot1['Weapon Level'] == None:
+                pass
+            else:
+                self.held_weapon = self.slot1.items()
+        if keys[pygame.K_2]:
+            if self.slot2['Weapon Level'] == None:
+                pass
+            else:
+                self.held_weapon = self.slot2.items()
+        for i, item in enumerate(self.held_weapon):
+            db(item,10, i * 20)
 
     def import_assets(self):
         #key pairs for all possible animations
@@ -83,7 +124,7 @@ class Player(pygame.sprite.Sprite):
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
+                    player_bullets.append(PlayerBullet(self.rect.center[0], self.rect.center[1], mouse_x, mouse_y))
 
         for bullet in player_bullets:
             bullet.main(display)
@@ -123,15 +164,48 @@ class Player(pygame.sprite.Sprite):
 
     def spriteinfo(self, sprite):
         self.true_mouse_x, self.true_mouse_y = self.true_mouse_location()
-        if self.hitbox.colliderect(sprite.info_range) and sprite.rect.collidepoint(self.true_mouse_x,self.true_mouse_y): 
+        self.display_surface = pygame.display.get_surface()
+        placement = self.mouse_x - 32, self.mouse_y - 184
+        if self.hitbox.colliderect(sprite.info_range) and sprite.rect.collidepoint(self.true_mouse_x,self.true_mouse_y):
+            details_list = []
+            text_list = []
+            held_info = []
+            better = []
             for i,detail in enumerate(sprite.gun_details):
-                x = 10
-                y = 10 + 22 * i
-                db(detail,x,y)
+                dkey, dvalue = detail
+                if dkey in details_list:
+                    continue
+                else:
+                    details_list.append((dkey, dvalue))
+                    text_list.append(f"{dkey} {dvalue}")
+                
+                if dkey == 'Weapon Rarity':
+                    colour = dvalue
+
+            for i,detail in enumerate(self.held_weapon):
+                hkey, hval = detail
+                if hkey in held_info:
+                    continue
+                else:
+                    held_info.append((hkey, hval))
+                
+            for i in range(4,9):
+                held_value,pickup_value = held_info[i][1],details_list[i][1]
+                print(held_value,pickup_value)
+                try:
+                    if held_value > pickup_value:   
+                        better.append(-1)
+                    if held_value == pickup_value:
+                        better.append(0)
+                    if held_value < pickup_value:
+                        better.append(1)
+                    else:
+                        better.append('null')
+                except:
+                    pass
+
+            floating_text(text_list, placement, colour, better)
         
-        #self.true_mouse_x, self.true_mouse_y = self.true_mouse_location()
-        #if sprite.rect.collidepoint(self.true_mouse_x,self.true_mouse_y):
-            #print('inside the tile')
 
 
     def item_info_range(self):
@@ -165,6 +239,7 @@ class Player(pygame.sprite.Sprite):
         self.get_status()
         self.move(dt)
         self.true_mouse_location()
+        self.inventory()
         #self.animate(dt)
         
 
