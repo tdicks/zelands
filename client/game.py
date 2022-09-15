@@ -97,9 +97,9 @@ class Game():
         #self.level = Level()
         while self.playing:
             self.check_events()
-            if self.BACK_KEY:
-                self.playing = False
-                self.curr_menu = self.main_menu
+            # if self.BACK_KEY:
+            #     self.playing = False
+            #     self.curr_menu = self.main_menu
             # Limit framerate
             self.clock.tick(FPS)
             # Calculate delta time 
@@ -108,19 +108,22 @@ class Game():
            # print(self.dt)
             self.prev_time = now
             self.window.fill((0,45,10))
+            self.check_events()
             self.level.run(self.dt)
             self.fps_counter()
+            self.check_events()
             pygame.display.update()
-            #self.reset_keys()
-            #dt = self.clock.tick(FPS) / 1000
-
+            pygame.display.flip()
+            pygame.event.pump()
     # def cursor_sound(self):
     #     CURSOR = pygame.mixer.Sound(os.path.join('Assets','sounds','cursor_change.mp3'))
     #     CURSOR.play()
 
     def check_events(self):
         for event in pygame.event.get():
+            print(event)
             if event.type == pygame.QUIT:
+                print('\nGame Shuting Down!')
                 self.running, self.playing = False, False
                 self.curr_menu.run_display = False
                 pygame.display.quit()
@@ -130,13 +133,24 @@ class Game():
                 if not self.fullscreen:
                     SCREEN_WIDTH, SCREEN_HEIGHT = event.size
                     self.window = pygame.display.set_mode(((SCREEN_WIDTH,SCREEN_HEIGHT)),pygame.RESIZABLE) 
+            
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_m]:
+                self.playing = False
+                self.curr_menu = self.main_menu
 
-            if event.type == pygame.KEYDOWN:   
+            if event.type == pygame.KEYDOWN: 
+                print('KEY pressed is ' + str(event.key) + '.') 
                 if event.key == pygame.K_RETURN:
                     self.SOUND_SELECT.play()
                     self.START_KEY = True
                 if event.key == pygame.K_BACKSPACE:
                     self.BACK_KEY = True
+                    self.playing = False
+                    self.curr_menu = self.main_menu
+                # if event.key == pygame.K_m:
+                #     self.playing = False
+                #     self.curr_menu = self.main_menu
                 if event.key == pygame.K_DOWN:
                     self.SOUND_CURSOR.play()
                     self.DOWN_KEY = True
