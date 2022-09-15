@@ -4,7 +4,7 @@ import yaml
 from menu.menu import *
 #from Game_Main import Game
 from pygame.locals import *
-from Settings import FONT
+from settings import FONT
 FPS = 60
 
 class Game():

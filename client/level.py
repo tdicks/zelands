@@ -4,7 +4,7 @@ from tkinter import EventType, Grid
 import items 
 
 import pygame
-from Settings import *
+from settings import *
 from Tiles import *
 from player import Player
 import pygame.sprite
@@ -14,9 +14,6 @@ from debug import debug as dbug
 
 #clock = pygame.time.Clock()
 #dt = clock.tick(60) / 1000
-
-
-
 class Generator:
     def __init__(self):
         self.blank = ' '

@@ -1,14 +1,23 @@
 import pygame
 from os.path import join
 from os import walk
-from Settings import TILESIZE,WHITE,BLACK
+from settings import TILESIZE,WHITE,BLACK
 import textwrap
+import yaml
 pygame.init()
 #font settings for floating text:
 font_name = join('client','menu','cambriab.TTF')
 font = pygame.font.Font(font_name, 16)
 fsize = 12
 WHITE = (255,255,255)
+
+# read the client config yaml
+def read_yaml():
+    config = None
+    # Read YAML file
+    with open(os.path.join('config','client.yaml'), 'r') as file:
+        config = yaml.safe_load(file)
+    print(config['controls'])
 
 # loading of images into list so they can be animated.
 def import_folder(path):    

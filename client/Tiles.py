@@ -1,5 +1,5 @@
 import pygame, os
-from Settings import *
+from settings import *
 from shared_functions import (load_collision_tile, load_weapon,
 load_walkable_tile, load_usable_tile, tile_rotate)
 

@@ -1,18 +1,10 @@
 import pygame,os,time
-from .menu_support import *
+#from .menu_support import *
 from game import *
 from level import Level
+from shared_functions import read_yaml
+from settings import *
 #define some commonly used colours
-WHITE = (255, 255, 255)
-LIGHTGREY = (192, 192, 192)
-DARKGREY = (128, 128, 128)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-MAGENTA = (255, 0, 255)
-CYAN = (0, 255, 255)
 
 class Menu():
     def __init__(self, game):

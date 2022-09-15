@@ -3,7 +3,7 @@ from turtle import speed, width
 import pygame
 import math
 import os
-from Settings import TILESIZE
+from settings import TILESIZE
 from Tiles import *
 from shared_functions import load_player, floating_text, import_folder
 from debug import debug as db
