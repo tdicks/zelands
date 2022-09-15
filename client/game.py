@@ -92,7 +92,7 @@ class Game():
         #self.level = Level()
         while self.playing:
             self.check_events()
-            if self.START_KEY:
+            if self.BACK_KEY:
                 self.playing = False
                 self.curr_menu = self.main_menu
             # Limit framerate
@@ -106,7 +106,7 @@ class Game():
             self.level.run(self.dt)
             self.fps_counter()
             pygame.display.update()
-            self.reset_keys()
+            #self.reset_keys()
             #dt = self.clock.tick(FPS) / 1000
 
     # def cursor_sound(self):
@@ -124,9 +124,9 @@ class Game():
             if event.type == pygame.VIDEORESIZE:
                 if not self.fullscreen:
                     SCREEN_WIDTH, SCREEN_HEIGHT = event.size
-                    self.window = pygame.display.set_mode(((SCREEN_WIDTH,SCREEN_HEIGHT)),pygame.RESIZABLE)   
-            if event.type == pygame.KEYDOWN:
-                
+                    self.window = pygame.display.set_mode(((SCREEN_WIDTH,SCREEN_HEIGHT)),pygame.RESIZABLE) 
+
+            if event.type == pygame.KEYDOWN:   
                 if event.key == pygame.K_RETURN:
                     self.SOUND_SELECT.play()
                     self.START_KEY = True
@@ -187,4 +187,4 @@ class Game():
     #redraw everything we've asked pygame to draw
         pygame.display.flip()
     #set frames per second
-        self.clock.tick(60) / 1000
+        self.clock.tick(FPS) / 1000

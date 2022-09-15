@@ -5,8 +5,7 @@ import math
 import os
 from Settings import TILESIZE
 from Tiles import *
-from shared_functions import load_player, floating_text
-from support import *
+from shared_functions import load_player, floating_text, import_folder
 from debug import debug as db
 
 display = pygame.display.set_mode((800,600))
@@ -36,7 +35,7 @@ class Player(pygame.sprite.Sprite):
 		# movement attributes
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 4
+        self.speed = 300
 
     def inventory(self):
         self.slot1 = {
@@ -115,7 +114,7 @@ class Player(pygame.sprite.Sprite):
             self.direction.x = 0
         
         self.facing = self.status
-
+         
         # Only needed to check direction of player in terminal
         # print(self.direction)
         
@@ -151,11 +150,11 @@ class Player(pygame.sprite.Sprite):
             self.direction = self.direction.normalize()
 
         # horizontal movement
-        self.hitbox.x += self.direction.x * self.speed *dt
+        self.hitbox.x += self.direction.x * self.speed * dt
         self.collision('horizontal')
 
         # vertical movement
-        self.hitbox.y += self.direction.y * self.speed *dt
+        self.hitbox.y += self.direction.y * self.speed * dt
         self.collision('vertical')
         self.rect.center = self.hitbox.center
 

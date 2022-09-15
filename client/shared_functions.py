@@ -1,5 +1,6 @@
 import pygame
 from os.path import join
+from os import walk
 from Settings import TILESIZE,WHITE,BLACK
 import textwrap
 pygame.init()
@@ -9,6 +10,15 @@ font = pygame.font.Font(font_name, 16)
 fsize = 12
 WHITE = (255,255,255)
 
+# loading of images into list so they can be animated.
+def import_folder(path):    
+    surface_list = []
+    for _, __, img_files in walk(path):
+        for image in img_files:
+            full_path = path + '/' + image
+            image_surf = pygame.image.load(full_path).convert_alpha()
+            surface_list.append(image_surf)
+    return surface_list
 
 #sprite loading / modification functions
 def load_collision_tile(lst,pos,hitbox_x = 0,hitbox_y = 0):

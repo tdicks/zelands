@@ -12,8 +12,8 @@ from data_stores import level_tile_lib
 import time
 from debug import debug as dbug
 
-clock = pygame.time.Clock()
-dt = clock.tick(60) / 1000
+#clock = pygame.time.Clock()
+#dt = clock.tick(60) / 1000
 
 
 
