@@ -8,76 +8,14 @@ from Settings import *
 from Tiles import *
 from player import Player
 import pygame.sprite
+from data_stores import level_tile_lib
+import time
 from debug import debug as dbug
 
-#dt = clock.tick(60) / 1000
+clock = pygame.time.Clock()
+dt = clock.tick(60) / 1000
 
-tile_lib = {
-    'layout1': ['X2XX1',
-                'X0X67',
-                'X345X',
-                'XXX8X'],
 
-    'layout2': ['XX456',
-                'X23X7',
-                '01XX8',
-                'XXXXX'],
-                        
-    'layout3': ['XXXXX',
-                '3102X',
-                '6XX4X',
-                'XX857'],
-
-    'layout4': ['XXXXX',
-                'XX3X8',
-                'XX6X5',
-                '12074'],
-
-    'layout5': ['045XX',
-                'XX2XX',
-                'X67XX',
-                'XX183'],
-
-    'layout6': ['XX613',
-                'XXX8X',
-                'XX27X',
-                '045XX'],
-
-    'layout7': ['XXXXX',
-                '847X3',
-                '1X650',
-                'XXXX2'],
-
-    'layout8': ['XXXXX',
-                '047X3',
-                '1X658',
-                'XXXX2'],
-
-    'layout9': ['XX603',
-                'XXX1X',
-                'XX27X',
-                '845XX'],
-    
-    'layout10': ['64103',
-                 '5XXXX',
-                 '72XXX',
-                 '8XXXX'],
-
-    'layout11': ['XXX1X',
-                 'X234X',
-                 'X5X0X',
-                 '87X6X'],
-    
-    'layout12': ['XX63X',
-                 'XX1XX',
-                 'X2075',
-                 'XX4X8'],
-
-    'layout13': ['XX6XX',
-                 'X01XX',
-                 'XX375',
-                 'X24X8']
-                        }
 
 class Generator:
     def __init__(self):
@@ -114,8 +52,8 @@ class Generator:
                     open_ground.append((r_index,col_index))
         map_x,map_y = random.choice(open_ground)
         map_base[map_x][map_y] = 'P'
-        for row in map_base: # prints map to console for debugging
-            print(row)
+        #for row in map_base: # prints map to console for debugging
+            #print(row)
         return map_base
 
 class Level:
@@ -161,7 +99,7 @@ class Level:
     def room_layout(self):
         self.__layout_selection = random.choice(['layout1','layout2','layout3','layout4','layout5',
                         'layout6','layout7','layout8','layout9','layout10','layout11','layout12','layout13'])
-        self.map_layout = tile_lib[self.__layout_selection]
+        self.map_layout = level_tile_lib[self.__layout_selection]
         self.layout_tuples = []
         count = 0
         for row in self.map_layout:
@@ -201,9 +139,9 @@ class Level:
                             Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
                     if col == 'RW':
                         if random.randint(1,20) % 13 == 0:
-                            Broken_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
+                            Broken_Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
                         else:
-                            Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
+                            Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
                     if col == 'BW':
                         if random.randint(1,20) % 13 == 0:
                             Broken_Wall((x,y), 2, [self.visible_sprites, self.obst_sprites])
@@ -211,9 +149,9 @@ class Level:
                             Wall((x,y), 2, [self.visible_sprites, self.obst_sprites])
                     if col == 'LW':
                         if random.randint(1,20) % 13 == 0:
-                            Broken_Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
+                            Broken_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
                         else:
-                            Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
+                            Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
                     if col == '__' or col == 'P' or col == 'TR' or col == 'HW' :
                         if random.randint(1,15) % 6 == 0:
                             Future_Floor2((x,y), [self.visible_sprites]) # draw ground tile on open ground AND player spawn location
@@ -224,18 +162,19 @@ class Level:
                     if col == 'CWTL':
                         Corner_Wall((x,y), 0, [self.visible_sprites, self.obst_sprites])
                     if col == 'CWTR':
-                        Corner_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites])
-                    if col == 'CWBL':
-                        Corner_Wall((x,y), 2, [self.visible_sprites, self.obst_sprites]) 
-                    if col == 'CWBR':
                         Corner_Wall((x,y), 3, [self.visible_sprites, self.obst_sprites])
+                    if col == 'CWBL':
+                        Corner_Wall((x,y), 1, [self.visible_sprites, self.obst_sprites]) 
+                    if col == 'CWBR':
+                        Corner_Wall((x,y), 2, [self.visible_sprites, self.obst_sprites])
                     if col == 'TR':
                         if random.randint(0,19) % 3 == 0:
                             Treasure((x,y), [self.visible_sprites, self.obst_sprites])
                         else:
                             gun = items.SMG()
                             guns.append(gun)
-                            SMG((x,y), gun.weapon_rarity, [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
+                            #print('This is my gun ::', gun.information())
+                            SMG_Tile((x,y), gun.weapon_rarity, gun, [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
                 for col_indx, col in enumerate(row):
                     x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
                     y = y_origin + (row_indx * TILESIZE)        
@@ -250,20 +189,14 @@ class Level:
         self.player = self.stored_spawn
         self.stored_spawn
 
-def tile_filter(lst):
-    for item in lst:
-        if str(lst).find('floor'):
-            return True
-        else:
-            return False
 
 class SpritesByLayerCamera(pygame.sprite.Group):
     def __init__(self):
         super().__init__()
+
         self.display_surface = pygame.display.get_surface()
         self.half_width = self.display_surface.get_size()[0] // 2
         self.half_height = self.display_surface.get_size()[1] // 2
-
         # Camera offset for tracking the player sprite
         self.offset = pygame.math.Vector2(100,100)
 
@@ -274,6 +207,7 @@ class SpritesByLayerCamera(pygame.sprite.Group):
         #self.internal_rect = self.surface_zoomed.get_rect()
 
     def custom_draw(self,player):
+
         # generating camera offset to follow the player
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
@@ -287,4 +221,3 @@ class SpritesByLayerCamera(pygame.sprite.Group):
         for sprite in sorted(self.post_render,key = lambda sprite: sprite.rect.bottom):
             offset_position = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image,offset_position)  
-
