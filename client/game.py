@@ -11,9 +11,11 @@ class Game():
     def __init__(self):
        # Music Init and Start
         pygame.mixer.pre_init(44100, -16, 2, 64)
+
        # Initalize Pygame & Mixer
         pygame.mixer.init()
         pygame.init()
+
        # Game states
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY, self.START_KEY, self.BACK_KEY, self.F11_KEY = False, False, False, False, False, False, False
@@ -27,6 +29,7 @@ class Game():
         self.flags = RESIZABLE|DOUBLEBUF
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)), self.flags, self.bpp)
         self.font_name = FONT
+
        # self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.clock = pygame.time.Clock()
@@ -39,6 +42,7 @@ class Game():
         self.SFX_VOLUME = 0.5
         self.BGM_VOLUME = 0.5
         self.get_config()
+
        # Menus
         self.splash = SplashScreen(self)
         self.main_menu = MainMenu(self)
@@ -46,13 +50,14 @@ class Game():
         self.volume = SoundMenu(self)
         self.controls = ControlsMenu(self)
         self.credits = CreditsMenu(self)
+
         # self.curr_menu = self.main_menu
         self.curr_menu = self.splash
+
         # create the locations of the stars for when we animate the background
         self.star_field_slow = []
         self.star_field_medium = []
         self.star_field_fast = []
-        self.level = Level()
 
         for slow_stars in range(50): #birth those plasma balls, baby
             star_loc_x = random.randrange(0, self.DISPLAY_W)
