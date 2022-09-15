@@ -8,11 +8,9 @@ from Settings import *
 from Tiles import *
 from player import Player
 import pygame.sprite
-import time
 from debug import debug as dbug
 
-clock = pygame.time.Clock()
-dt = clock.tick(60) / 1000
+#dt = clock.tick(60) / 1000
 
 tile_lib = {
     'layout1': ['X2XX1',
@@ -121,7 +119,7 @@ class Generator:
         return map_base
 
 class Level:
-    def __init__(self, dt):
+    def __init__(self):
         valid = True
         while not valid:
             try:
@@ -156,7 +154,7 @@ class Level:
         self.room_coords = self.room_layout()
 
         # endregion
-        self.dt = dt
+        #self.dt = dt
         self.create_map()
         self.create_player()
 
@@ -178,10 +176,10 @@ class Level:
         return self.layout_tuples
         
 
-    def run(self):
+    def run(self,dt):
         self.visible_floor_sprites.update()
         self.visible_sprites.custom_draw(self.player)
-        self.visible_sprites.update(self.dt)
+        self.visible_sprites.update(dt)
 
     def create_map(self):
         guns = []

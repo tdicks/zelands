@@ -1,17 +1,18 @@
-import pygame,os, sys
+import pygame,os, sys, time
 import random
-from menu import *
-
+import yaml
+from menu.menu import *
+#from Game_Main import Game
 from pygame.locals import *
+from Settings import FONT
+FPS = 60
 
-os.environ['SDL_VIDEO_CENTERED'] = '1'
 class Game():
     def __init__(self):
        # Music Init and Start
         pygame.mixer.pre_init(44100, -16, 2, 64)
        # Initalize Pygame & Mixer
         pygame.mixer.init()
-   
         pygame.init()
        # Game states
         self.running, self.playing = True, False
@@ -25,13 +26,15 @@ class Game():
         self.bpp = 24 #bit-per-pixel can be set to 8,16 or 24
         self.flags = RESIZABLE|DOUBLEBUF
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)), self.flags, self.bpp)
-        self.font_name = os.path.join('client','menu','8-BIT WONDER.TTF')
+        self.font_name = FONT
        # self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.clock = pygame.time.Clock()
+        self.prev_time = time.time()
+        self.dt = 0
 
        # Sound
-        self.SOUND_CURSOR = pygame.mixer.Sound(os.path.join('assets','assets','sounds','GunSilencer.mp3'))
+        self.SOUND_CURSOR = pygame.mixer.Sound(os.path.join('assets','sounds','GunSilencer.mp3'))
         self.SOUND_SELECT = pygame.mixer.Sound(os.path.join('assets','sounds','select.wav'))
         self.SFX_VOLUME = 0.5
         self.BGM_VOLUME = 0.5
@@ -49,6 +52,7 @@ class Game():
         self.star_field_slow = []
         self.star_field_medium = []
         self.star_field_fast = []
+        self.level = Level()
 
         for slow_stars in range(50): #birth those plasma balls, baby
             star_loc_x = random.randrange(0, self.DISPLAY_W)
@@ -85,20 +89,25 @@ class Game():
         self.window.blit(self.fps_t,(0,0)) 
 
     def game_loop(self):
+        #self.level = Level()
         while self.playing:
             self.check_events()
             if self.START_KEY:
                 self.playing = False
-            self.display.fill(self.BLACK)
-            self.stars(self.DISPLAY_W,self.DISPLAY_H, self.star_field_slow,self.star_field_medium,self.star_field_fast)
-            self.draw_text('Insert Awesome Game Here', 20, self.DISPLAY_W/2, self.DISPLAY_H/2)
-            #self.level.run()
-            #self.window.blit(self.display, (0,0))
-            self.window.blit(pygame.transform.scale(self.display, self.window.get_rect().size), (0,0))
+                self.curr_menu = self.main_menu
+            # Limit framerate
+            self.clock.tick(FPS)
+            # Calculate delta time 
+            now = time.time()
+            self.dt = now - self.prev_time
+           # print(self.dt)
+            self.prev_time = now
+            self.window.fill((0,45,10))
+            self.level.run(self.dt)
             self.fps_counter()
-            self.clock.tick(60) / 1000
             pygame.display.update()
             self.reset_keys()
+            #dt = self.clock.tick(FPS) / 1000
 
     # def cursor_sound(self):
     #     CURSOR = pygame.mixer.Sound(os.path.join('Assets','sounds','cursor_change.mp3'))
@@ -109,6 +118,9 @@ class Game():
             if event.type == pygame.QUIT:
                 self.running, self.playing = False, False
                 self.curr_menu.run_display = False
+                pygame.display.quit()
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.VIDEORESIZE:
                 if not self.fullscreen:
                     SCREEN_WIDTH, SCREEN_HEIGHT = event.size

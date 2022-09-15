@@ -1,7 +1,7 @@
 import pygame,os,time
-from menu_support import *
+from .menu_support import *
 from game import *
-
+from level import Level
 #define some commonly used colours
 WHITE = (255, 255, 255)
 LIGHTGREY = (192, 192, 192)
@@ -39,13 +39,13 @@ class SplashScreen(Menu):
         self.state = "Splash"
 
     def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
+        self.display_splash = True
+        while self.display_splash:
+            #self.game.check_events()
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Loading...', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.blit_screen()
-            time.sleep(5)
+            time.sleep(1)
             self.state = 'Start'
             self.check_input()
 
@@ -53,7 +53,7 @@ class SplashScreen(Menu):
             if self.state == 'Start':
                 self.game.curr_menu = self.game.main_menu
                 self.game.start_bgm()
-                self.run_display = False
+                self.display_splash = False
 
 class MainMenu(Menu):
     '''

@@ -16,7 +16,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group,obstacle_sprites):
         super().__init__(group)
         
-        #self.import_assets()
+        self.import_assets()
         self.status = 'down_idle'
         self.frame_index = 0
 
@@ -30,13 +30,13 @@ class Player(pygame.sprite.Sprite):
         # movement attributes
 
 		# general setup
-        #self.image = self.animations[self.status][self.frame_index]
+        #self.image = self.animations[self.status][self.frame_index
         #self.rect = self.image.get_rect(center = pos)
 
 		# movement attributes
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 2
+        self.speed = 300
 
     def import_assets(self):
         #key pairs for all possible animations
@@ -99,11 +99,11 @@ class Player(pygame.sprite.Sprite):
             self.direction = self.direction.normalize()
 
         # horizontal movement
-        self.hitbox.x += self.direction.x * self.speed
+        self.hitbox.x += self.direction.x * self.speed *dt
         self.collision('horizontal')
 
         # vertical movement
-        self.hitbox.y += self.direction.y * self.speed
+        self.hitbox.y += self.direction.y * self.speed *dt
         self.collision('vertical')
         self.rect.center = self.hitbox.center
 
