@@ -5,8 +5,8 @@ from menu.menu import *
 #from Game_Main import Game
 from pygame.locals import *
 from settings import FONT
+from player import Player
 FPS = 60
-
 class Game():
     def __init__(self):
        # Music Init and Start
@@ -24,12 +24,13 @@ class Game():
         self.fullscreen = False
         self.DISPLAY_W, self.DISPLAY_H = 1280, 1024
         self.monitor_size = [pygame.display.Info().current_w,pygame.display.Info().current_h]
+        x , y = (0.50*self.DISPLAY_W)-(0.50*pygame.display.Info().current_w), 0.50*self.DISPLAY_H-(0.50*pygame.display.Info().current_h)
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x,y)
         self.display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.bpp = 24 #bit-per-pixel can be set to 8,16 or 24
         self.flags = RESIZABLE|DOUBLEBUF
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)), self.flags, self.bpp)
         self.font_name = FONT
-
        # self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.clock = pygame.time.Clock()
@@ -91,7 +92,7 @@ class Game():
         self.font = pygame.font.Font(self.font_name,20)
         self.fps = str(int(self.clock.get_fps()))
         self.fps_t = self.font.render(self.fps , 1, pygame.Color('GREEN'))
-        self.window.blit(self.fps_t,(0,0)) 
+        self.window.blit(self.fps_t,(self.DISPLAY_W-45,0)) 
 
     def game_loop(self):
         #self.level = Level()
@@ -112,6 +113,7 @@ class Game():
             self.level.run(self.dt)
             self.fps_counter()
             self.check_events()
+           # Player.draw_health(self, self.display)
             pygame.display.update()
             pygame.display.flip()
             pygame.event.pump()
@@ -133,6 +135,7 @@ class Game():
                 if not self.fullscreen:
                     SCREEN_WIDTH, SCREEN_HEIGHT = event.size
                     self.window = pygame.display.set_mode(((SCREEN_WIDTH,SCREEN_HEIGHT)),pygame.RESIZABLE) 
+                    os.environ['SDL_VIDEO_CENTERED'] = '1'
             
             keys = pygame.key.get_pressed()
             if keys[pygame.K_m]:

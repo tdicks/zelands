@@ -5,7 +5,7 @@ import math
 import os
 from settings import TILESIZE
 from Tiles import *
-from shared_functions import load_player, floating_text, import_folder
+from shared_functions import load_player, floating_text, import_folder, draw_health_bar
 from debug import debug as db
 
 display = pygame.display.set_mode((800,600))
@@ -36,6 +36,7 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 300
+        self.health = 10
 
     def inventory(self):
         self.slot1 = {
@@ -129,7 +130,6 @@ class Player(pygame.sprite.Sprite):
             bullet.main(display)
 
     def get_status(self):
-
         # checks if player is in a state of movement if its not it appends the status with _idle 
         if self.direction.magnitude() == 0:
             self.status = self.status.split('_')[0] + '_idle'
@@ -239,9 +239,15 @@ class Player(pygame.sprite.Sprite):
         self.move(dt)
         self.true_mouse_location()
         self.inventory()
+        self.draw_health(display)
         #self.animate(dt)
-        
 
+    def draw_health(self, display):
+        health_rect = pygame.Rect(0, 0, self.image.get_width(), 7)
+        health_rect.midbottom = self.rect.centerx, self.rect.top
+        max_health = 10
+        draw_health_bar(display, health_rect.topleft, health_rect.size, 
+                (0, 0, 0), (255, 0, 0), (0, 255, 0), self.health/max_health)
 # bullet creation
 class PlayerBullet:
     def __init__(self, x, y, mouse_x, mouse_y):

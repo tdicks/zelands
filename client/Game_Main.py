@@ -1,8 +1,8 @@
 import pygame, sys, time
-from Settings import *
+from settings import *
 from debug import debug
 from level import Level
-FPS = 50
+FPS = 60
 class Game:
     def __init__(self):
         pygame.init()

@@ -79,22 +79,38 @@ def floating_text(in_text, sprite_topleft, colour, better):
         default_colour = (0,0,0)
     display_surface = pygame.display.get_surface()
     longest = 0
+    text_colour = (255,255,255)
+    #Draw rarity box
+    pygame.draw.rect(display_surface, colour, (sprite_topleft[0]-12, sprite_topleft[-1]-27, 255, 205))
+    #Draw inner box
+    pygame.draw.rect(display_surface, BLACK, (sprite_topleft[0]-10, sprite_topleft[-1]-25, 250, 200))
     for i,item in enumerate(in_text):
-        if i > 3:
-            if better[i-4] == -1:
-                text_colour = (255,0,0)
-            if better[i-4] == 1:
-                text_colour = (0,255,0)
-            if better[i-4] == 0:
-                text_colour = default_colour
-        else: 
-            if colour == 'blue' or colour == 'purple':
-                text_colour = (255,255,255)
-            else:
-                text_colour = (0,0,0)
-        
-        text_surface = font.render(item,True, text_colour)
+        # if i > 3:
+        #     pass
+            # if better[i-4] == -1:
+            #     text_colour = (255,0,0)
+            # if better[i-4] == 1:
+            #     text_colour = (0,255,0)
+            # if better[i-4] == 0:
+            #     text_colour = default_colour
+
+        # else: 
+        #     if colour == 'blue' or colour == 'purple':
+        #         text_colour = (255,255,255)
+        #     else:
+        #         text_colour = (0,0,0)
+
+        # Add text 
+        text_surface = font.render(item,True, WHITE)
         text_rect = text_surface.get_rect(bottomleft = (sprite_topleft[0], sprite_topleft[1] + (i * 20)))
         if text_rect.width > longest: longest = text_rect.width
-        pygame.draw.rect(display_surface, colour, text_rect.inflate(10,3))
+        pygame.draw.rect(display_surface, BLACK, text_rect.inflate(10,3))
         display_surface.blit(text_surface, text_rect)    
+
+def draw_health_bar(surface, position, size, color_border, color_background, color_health, progress):
+    pygame.draw.rect(surface, color_background, (*position, *size))
+    pygame.draw.rect(surface, color_border, (*position, *size), 1)
+    innerPos  = (position[0]+1, position[1]+1)
+    innerSize = (int((size[0]-2) * progress), size[1]-2)
+    pygame.draw.rect(surface, color_health, (*innerPos, *innerSize))
+    print('im supposedly drawing a healthbar somewhere')
