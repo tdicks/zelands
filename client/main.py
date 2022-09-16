@@ -1,4 +1,4 @@
-from http import client
+#from http import client
 from game import Game
 
 g = Game()
