@@ -1,10 +1,12 @@
-from re import X
+from re import A, X
+from tkinter import W
 from typing import Type
-import os
+from os.path import join
 import pygame
-import random
+import random, math
+
 pygame.init()
-font_name = os.path.join('client','menu','cambriab.TTF')
+font_name = join('client','menu','cambriab.TTF')
 font = pygame.font.Font(font_name, 14)
 fsize = 12
 WHITE = (255,255,255)

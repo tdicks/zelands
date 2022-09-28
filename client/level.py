@@ -1,15 +1,13 @@
 import random
-import time
-from tkinter import EventType, Grid
-import items 
 
+from items import SMG 
+from camera import SpritesByLayerCamera
 import pygame
-from Settings import *
+from Settings import TILESIZE
 from Tiles import *
 from player import Player
 import pygame.sprite
 from data_stores import level_tile_lib
-import time
 from debug import debug as dbug
 
 clock = pygame.time.Clock()
@@ -130,7 +128,7 @@ class Level:
                 for col_indx, col in enumerate(row):
                     x = x_origin + (col_indx * TILESIZE) # TILESIZE is stored in Settings.py
                     y = y_origin + (row_indx * TILESIZE)
-                    # during the following 'if' statements the number follwing co-ordinates (x,y) is a rotation value
+                    # during the following 'if' statements the number following co-ordinates (x,y) is a rotation value
                     # 0 = north , 1 = east, 2 = south, 3 = west
                     if col == 'TW':
                         if random.randint(1,20) % 13 == 0:
@@ -171,7 +169,7 @@ class Level:
                         if random.randint(0,19) % 3 == 0:
                             Treasure((x,y), [self.visible_sprites, self.obst_sprites])
                         else:
-                            gun = items.SMG()
+                            gun = SMG()
                             guns.append(gun)
                             #print('This is my gun ::', gun.information())
                             SMG_Tile((x,y), gun.weapon_rarity, gun, [self.visible_sprites, self.obst_sprites]) # Tile is a member of both 'visible...' and 'obst...'
@@ -190,34 +188,3 @@ class Level:
         self.stored_spawn
 
 
-class SpritesByLayerCamera(pygame.sprite.Group):
-    def __init__(self):
-        super().__init__()
-
-        self.display_surface = pygame.display.get_surface()
-        self.half_width = self.display_surface.get_size()[0] // 2
-        self.half_height = self.display_surface.get_size()[1] // 2
-        # Camera offset for tracking the player sprite
-        self.offset = pygame.math.Vector2(100,100)
-
-        # Zoom function
-        self.zoomscale = 1
-        self.full_zoom_resolution = (2500,2500)
-        #self.surface_zoomed = pygame.surface(self.full_zoom_resolution, pygame.SRCALPHA)
-        #self.internal_rect = self.surface_zoomed.get_rect()
-
-    def custom_draw(self,player):
-
-        # generating camera offset to follow the player
-        self.offset.x = player.rect.centerx - self.half_width
-        self.offset.y = player.rect.centery - self.half_height
-        self.post_render = []
-        for sprite in self.sprites():
-            if "Floor" in str(sprite):
-                offset_position = sprite.rect.topleft - self.offset
-                self.display_surface.blit(sprite.image,offset_position)
-            else:
-                self.post_render.append(sprite) 
-        for sprite in sorted(self.post_render,key = lambda sprite: sprite.rect.bottom):
-            offset_position = sprite.rect.topleft - self.offset
-            self.display_surface.blit(sprite.image,offset_position)  

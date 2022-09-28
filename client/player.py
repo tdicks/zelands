@@ -1,11 +1,11 @@
-#from curses.ascii import SP
+
 from turtle import speed, width
 import pygame
 import math
 import os
 from Settings import TILESIZE
 from Tiles import *
-from shared_functions import load_player, floating_text
+from shared_functions import load_player, floating_text, outline_text
 from support import *
 from debug import debug as db
 
@@ -75,8 +75,9 @@ class Player(pygame.sprite.Sprite):
                 pass
             else:
                 self.held_weapon = self.slot2.items()
-        for i, item in enumerate(self.held_weapon):
-            db(item,10, i * 20)
+        
+        #for i, item in enumerate(self.held_weapon):
+        #    db(item,10, i * 20)
 
     def import_assets(self):
         #key pairs for all possible animations
@@ -191,7 +192,6 @@ class Player(pygame.sprite.Sprite):
                 
             for i in range(4,9):
                 held_value,pickup_value = held_info[i][1],details_list[i][1]
-                print(held_value,pickup_value)
                 try:
                     if held_value > pickup_value:   
                         better.append(-1)
@@ -204,9 +204,10 @@ class Player(pygame.sprite.Sprite):
                 except:
                     pass
 
+            displacement = 2
+            outline_text(text_list, placement, displacement, 'black')
             floating_text(text_list, placement, colour, better)
         
-
 
     def item_info_range(self):
         for sprite in self.obstacle_sprites:

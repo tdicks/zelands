@@ -197,7 +197,119 @@ items_base_stats = {
         'reload_time': 0.6, # seconds
         'total_ammo': 640,
         'crit_damage_modifier': 0.5
-        } 
+        }, 
+
+    'ASR': {
+        'damage': 6,
+        'fire_rate': 4, # shots per second#
+        'accuracy': 55, #percent
+        'clip_count': 24,
+        'reload_time': 1.4, # seconds
+        'total_ammo': 440,
+        'crit_damage_modifier': 0.6
+        },
+    
+    'PSTL': {
+        'damage': 9,
+        'fire_rate': 2, # shots per second#
+        'accuracy': 50, #percent
+        'clip_count': 6,
+        'reload_time': 1.0, # seconds
+        'total_ammo': 220,
+        'crit_damage_modifier': 1.0
+        },
+
+    'SNPR': {
+        'damage': 18,
+        'fire_rate': 1, # shots per second#
+        'accuracy': 65, #percent
+        'clip_count': 10,
+        'reload_time': 1.4, # seconds
+        'total_ammo': 220,
+        'crit_damage_modifier': 1.5
+        },
+
+    'SHOT': {
+        'damage': 6,
+        'fire_rate': 2, # shots per second#
+        'accuracy': 30, #percent
+        'clip_count': 6,
+        'reload_time': 1.5, # seconds
+        'total_ammo': 320,
+        'crit_damage_modifier': 0.8
+        },
+
+    'RCKT': {
+        'damage': 20,
+        'fire_rate': 0.6, # shots per second#
+        'accuracy': 70, #percent
+        'clip_count': 5,
+        'reload_time': 2.4, # seconds
+        'total_ammo': 120,
+        'crit_damage_modifier': 0.2
+        },
+    }
+
+lvl_stat_increase = {
+    'SMG': {
+            'damage+': 1.25,
+            'fire_rate': 1, # does not increase by level only increased by 'body' part modifiers
+            'accuracy+': 0.05,  
+            'clip_count+': 0.5,
+            'reload_time': 1, # does not increase only increased by 'clip' part modifiers
+            'total_ammo+': 2,
+            'crit_damage_modifier': 1 # only increased by certain weapon parts
+            },
+
+    'ASR': {
+            'damage+': 1.35,
+            'fire_rate': 1, # does not increase by level only increased by 'body' part modifiers
+            'accuracy+': 0.1,  
+            'clip_count+': 0.3,
+            'reload_time': 1, # does not increase only increased by 'clip' part modifiers
+            'total_ammo+': 1.5,
+            'crit_damage_modifier': 1 # only increased by certain weapon parts
+            },
+
+    'PSTL': {
+            'damage+': 1.4,
+            'fire_rate': 1, # does not increase by level only increased by 'body' part modifiers
+            'accuracy+': 0.06,  
+            'clip_count+': 0.3,
+            'reload_time': 1, # does not increase only increased by 'clip' part modifiers
+            'total_ammo+': 1.5,
+            'crit_damage_modifier': 1 # only increased by certain weapon parts
+            },
+    
+    'SHOT':  {
+            'damage+': 1.2,
+            'fire_rate': 1, # does not increase by level only increased by 'body' part modifiers
+            'accuracy+': 0.1,  
+            'clip_count+': 0.5,
+            'reload_time': 1, # does not increase only increased by 'clip' part modifiers
+            'total_ammo+': 2,
+            'crit_damage_modifier': 1 # only increased by certain weapon parts
+            },
+
+    'SNPR':  {
+            'damage+': 1.5,
+            'fire_rate': 1, # does not increase by level only increased by 'body' part modifiers
+            'accuracy+': 0.025,  
+            'clip_count+': 0.2,
+            'reload_time': 1, # does not increase only increased by 'clip' part modifiers
+            'total_ammo+': 1.2,
+            'crit_damage_modifier': 1 # only increased by certain weapon parts
+            },
+
+    'RCKT':  {
+            'damage+': 1.6,
+            'fire_rate': 1, # does not increase by level only increased by 'body' part modifiers
+            'accuracy+': 0.1,  
+            'clip_count+': 0.2,
+            'reload_time': 1, # does not increase only increased by 'clip' part modifiers
+            'total_ammo+': 1.2,
+            'crit_damage_modifier': 1 # only increased by certain weapon parts
+            }
     }
 
 items_part_lib = {

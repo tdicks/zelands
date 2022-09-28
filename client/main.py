@@ -3,7 +3,7 @@
 import pygame
 import yaml
 import sys
-import os
+from os import path
 from pygame.locals import *
 from events import EventHandler
 from level import Level
@@ -63,6 +63,6 @@ class Game:
 
 if __name__ == "__main__":
     game = Game()
-    with open(os.path.join('config','client.yaml'), 'r') as file:
+    with open(path.join('config','client.yaml'), 'r') as file:
         game.config = yaml.safe_load(file)
     game.on_execute()
