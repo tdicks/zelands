@@ -84,16 +84,18 @@ items_body_mods = {
     'Dickshot': {
         'fire_rate': -2.2,
         'damage': 8,
-        'reload_time': 1.7 # multiplier
+        'reload_time': 1.7 # addition
         },
     'Elidia': {
         'fire_rate': 1,
+        'damage': 1,
         'reload_time': -0.2 # subtraction to Reload time
         },
     'Judicium': {
         'fire_rate': -1.2,
         'damage': 2,
-        'Critical_hit': 0.5 # multiplier
+        'reload_time': 0,
+        'critical_hit': 0.5 # multiplier
         }
     }
 
@@ -112,11 +114,13 @@ items_barrel_mods = {
         },
     'Elidia': {
         'accuracy': +5, # %
+        'damage': +0.2,
         'pellet_speed': +3,
         'barrel_count' : 4 # subtraction from RL time
         },
     'Judicium': {
         'accuracy': +2.5, # %
+        'damage': -0.2,
         'pellet_speed': +5,
         'critical_hit': 0.2, # multiplier
         'barrel_count': 3
@@ -135,9 +139,14 @@ items_sight_mods = {
     'Elidia': {
         'accuracy': +10, # %
         },
+
     'Judicium': {
         'accuracy': +5, # %
-        }
+        },
+
+    'No Sight': {
+        'accuracy': +0
+        },
     }
 
 items_grip_mods = {
@@ -180,6 +189,25 @@ items_clip_mods = {
         }
     }
 
+items_stock_mods = {
+    'DaBoom' : {
+        'accuracy': +1
+        },
+
+    'Dickshot': {
+        'accuracy': +0.5
+        },
+
+    'Elidia': {
+        'accuracy': +2
+        },
+
+    'Judicium': {
+        'accuracy': +1.5
+        },
+
+    }
+
 items_rarity_modifiers = {
     'white': 1,
     'green': 1.2,
@@ -191,22 +219,24 @@ items_rarity_modifiers = {
 items_base_stats = {
     'SMG': {
         'damage': 4,
-        'fire_rate': 6, # shots per second#
+        'fire_rate': 10, # shots per second#
         'accuracy': 40, #percent
         'clip_count': 32,
         'reload_time': 0.6, # seconds
         'total_ammo': 640,
-        'crit_damage_modifier': 0.5
+        'crit_damage_modifier': 0.5,
+        'pellet_speed': 10
         }, 
 
     'ASR': {
         'damage': 6,
-        'fire_rate': 4, # shots per second#
+        'fire_rate': 7, # shots per second#
         'accuracy': 55, #percent
         'clip_count': 24,
         'reload_time': 1.4, # seconds
         'total_ammo': 440,
-        'crit_damage_modifier': 0.6
+        'crit_damage_modifier': 0.6,
+        'pellet_speed': 10
         },
     
     'PSTL': {
@@ -216,17 +246,19 @@ items_base_stats = {
         'clip_count': 6,
         'reload_time': 1.0, # seconds
         'total_ammo': 220,
-        'crit_damage_modifier': 1.0
+        'crit_damage_modifier': 1.0,
+        'pellet_speed': 9
         },
 
     'SNPR': {
         'damage': 18,
-        'fire_rate': 1, # shots per second#
+        'fire_rate': 2, # shots per second#
         'accuracy': 65, #percent
         'clip_count': 10,
         'reload_time': 1.4, # seconds
         'total_ammo': 220,
-        'crit_damage_modifier': 1.5
+        'crit_damage_modifier': 1.5,
+        'pellet_speed': 14
         },
 
     'SHOT': {
@@ -236,17 +268,19 @@ items_base_stats = {
         'clip_count': 6,
         'reload_time': 1.5, # seconds
         'total_ammo': 320,
-        'crit_damage_modifier': 0.8
+        'crit_damage_modifier': 0.8,
+        'pellet_speed': 7
         },
 
     'RCKT': {
         'damage': 20,
-        'fire_rate': 0.6, # shots per second#
-        'accuracy': 70, #percent
+        'fire_rate': 1, # shots per second#
+        'accuracy': 50, #percent
         'clip_count': 5,
         'reload_time': 2.4, # seconds
         'total_ammo': 120,
-        'crit_damage_modifier': 0.2
+        'crit_damage_modifier': 0.2,
+        'pellet_speed': 6
         },
     }
 

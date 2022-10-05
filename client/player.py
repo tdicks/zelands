@@ -39,6 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 4
 
     def inventory(self):
+        """character storage using two library variables \'slot1\' and \'slot2\'"""
         self.slot1 = {
             'Weapon Level': 2,
             'Weapon Type': 'SMG',
@@ -47,7 +48,7 @@ class Player(pygame.sprite.Sprite):
             'Damage': 16,
             'Accuracy': 65,
             'Clip Size': 54,
-            'Reload': 0.6,
+            'Reload': 16,
             'Ammo Capacity': 647
             }
         self.slot2 = {
@@ -76,8 +77,8 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.held_weapon = self.slot2.items()
         
-        #for i, item in enumerate(self.held_weapon):
-        #    db(item,10, i * 20)
+        for i, item in enumerate(self.held_weapon):
+            db(item,10, i * 20)
 
     def import_assets(self):
         #key pairs for all possible animations
@@ -164,6 +165,7 @@ class Player(pygame.sprite.Sprite):
 
 
     def spriteinfo(self, sprite):
+        """adds mouse-over information for item sprites when within their \'info_range\' distance"""
         self.true_mouse_x, self.true_mouse_y = self.true_mouse_location()
         self.display_surface = pygame.display.get_surface()
         placement = self.mouse_x - 32, self.mouse_y - 184
@@ -193,6 +195,7 @@ class Player(pygame.sprite.Sprite):
             for i in range(4,9):
                 held_value,pickup_value = held_info[i][1],details_list[i][1]
                 try:
+                    print(held_value,   pickup_value)
                     if held_value > pickup_value:   
                         better.append(-1)
                     if held_value == pickup_value:

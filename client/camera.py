@@ -48,5 +48,3 @@ class SpritesByLayerCamera(pygame.sprite.Group):
         scaled_surface = pygame.transform.scale(self.surface_zoomed,self.internal_surface_vector * self.zoomscale)
         scaled_rect = scaled_surface.get_rect(center = (self.half_width, self.half_height))
         self.display_surface.blit(scaled_surface, scaled_rect)
-
-        db(self.zoomscale)
