@@ -122,11 +122,14 @@ class Player(pygame.sprite.Sprite):
         # print(self.direction)
         
     def pew(self):
+        """Creates a bullet on the screen at the players location, !INFO! needs to use the players
+        fixed window location (dead center) and not the players in-world position for x,y coordinates"""
         mouse_x, mouse_y = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    player_bullets.append(PlayerBullet(self.pos.x, self.pos.y, mouse_x, mouse_y))
+                    self.player_x, self.player_y = display.get_width()/2, display.get_height() / 2
+                    player_bullets.append(PlayerBullet(self.player_x, self.player_y, mouse_x, mouse_y))
 
         for bullet in player_bullets:
             bullet.main(display)
@@ -165,7 +168,7 @@ class Player(pygame.sprite.Sprite):
 
 
     def spriteinfo(self, sprite):
-        """adds mouse-over information for item sprites when within their \'info_range\' distance"""
+        """adds mouse-over information for item sprites when within their \'info_range\' distance. -- Requires (self, sprite)"""
         self.true_mouse_x, self.true_mouse_y = self.true_mouse_location()
         self.display_surface = pygame.display.get_surface()
         placement = self.mouse_x - 32, self.mouse_y - 184
@@ -219,6 +222,7 @@ class Player(pygame.sprite.Sprite):
  
 
     def collision(self, direction):
+        """Collision detection for object sprites, -- Requires (self, direction)"""
         if direction == 'horizontal':
             for sprite in self.obstacle_sprites:
                 if sprite.hitbox.colliderect(self.hitbox):
@@ -249,9 +253,9 @@ class Player(pygame.sprite.Sprite):
 
 # bullet creation
 class PlayerBullet:
+    """Class to create bullets on the screen at the players location, -- Requires (self, player_x, player_y, mouse_x, mouse_y)"""
     def __init__(self, x, y, mouse_x, mouse_y):
-        self.x = x
-        self.y = y
+        self.x, self.y = x,y
         self.mouse_x = mouse_x
         self.mouse_y = mouse_y
         self.lifetime = 50
@@ -266,5 +270,8 @@ class PlayerBullet:
         self.x -= int(self.x_vel)
         self.y -= int(self.y_vel)
 
-        pygame.draw.circle(display, (0, 0, 0), (self.x, self.y), self.radius)
+        pygame.draw.circle(display, (0, 100, 255), (self.x, self.y), self.radius)
+        # due to 'display' (application window) being the drawing surface:
+        #  the character x and y needs to be the dead center of the screen
+        # this is now being handled beforehand in the Pew() method.
         self.lifetime -= 1
