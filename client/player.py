@@ -77,8 +77,8 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.held_weapon = self.slot2.items()
         
-        for i, item in enumerate(self.held_weapon):
-            db(item,10, i * 20)
+        #for i, item in enumerate(self.held_weapon):
+            #db(item,10, i * 20)
 
     def import_assets(self):
         #key pairs for all possible animations
@@ -119,7 +119,7 @@ class Player(pygame.sprite.Sprite):
         self.facing = self.status
 
         # Only needed to check direction of player in terminal
-        # print(self.direction)
+        print(self.facing)
         
     def pew(self):
         """Creates a bullet on the screen at the players location, !INFO! needs to use the players
@@ -128,11 +128,22 @@ class Player(pygame.sprite.Sprite):
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    self.player_x, self.player_y = display.get_width()/2, display.get_height() / 2
+                    if self.facing == 'left' or self.facing == 'left_idle':
+                        self.player_x, self.player_y = (display.get_width() / 2) - 32, display.get_height() / 2
+                    if self.facing == 'right' or self.facing == 'right_idle':
+                        self.player_x, self.player_y = (display.get_width() / 2) + 32, display.get_height() / 2
+                    if self.facing == 'up' or self.facing == 'up_idle':
+                        self.player_x, self.player_y = display.get_width() / 2, (display.get_height() / 2) - 32
+                    if self.facing == 'down' or self.facing == 'down_idle':
+                        self.player_x, self.player_y = display.get_width() / 2, (display.get_height() / 2) + 32
+                        # this should only happen if the player has never moved before firing
                     player_bullets.append(PlayerBullet(self.player_x, self.player_y, mouse_x, mouse_y))
 
-        for bullet in player_bullets:
+        for num,bullet in enumerate(player_bullets):
             bullet.main(display)
+            if bullet.x < -200 or bullet.x > display.get_width() + 200 or bullet.y < -200 or bullet.y > display.get_height() + 200:
+                player_bullets.remove(bullet)
+            
 
     def get_status(self):
 
@@ -240,6 +251,13 @@ class Player(pygame.sprite.Sprite):
                     if self.direction.y < 0:  # moving up
                         self.hitbox.top = sprite.hitbox.bottom
         
+    def bullet_collision(self, bullet_lst):
+        for bullet in bullet_lst:
+            for sprite in self.obstacle_sprites:
+                if bullet.rect.colliderect(sprite.hitbox):
+                    if hasattr(sprite.hp):
+                        sprite.hp -= self.held_weapon['Damage']
+                        print(sprite.hp)
     
     def update(self, dt):
         self.input()
@@ -248,7 +266,9 @@ class Player(pygame.sprite.Sprite):
         self.move(dt)
         self.true_mouse_location()
         self.inventory()
+        self.bullet_collision(player_bullets)
         #self.animate(dt)
+
         
 
 # bullet creation
@@ -270,7 +290,7 @@ class PlayerBullet:
         self.x -= int(self.x_vel)
         self.y -= int(self.y_vel)
 
-        pygame.draw.circle(display, (0, 100, 255), (self.x, self.y), self.radius)
+        self.image, self.rect, self.hitbox = load_collision_tile(['assets','sprites','bullet.png'],(self.x,self.y))
         # due to 'display' (application window) being the drawing surface:
         #  the character x and y needs to be the dead center of the screen
         # this is now being handled beforehand in the Pew() method.
